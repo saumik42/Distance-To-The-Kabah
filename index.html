@@ -191,17 +191,16 @@
       }
     }
 
-    /* WORLD VISUAL */
+    /* WORLD MAP */
 
     .world-card {
       position: relative;
       overflow: hidden;
-      min-height: 315px;
-      padding: 18px 18px 17px;
+      padding: 17px 17px 15px;
       border-radius: 20px;
       background:
-        radial-gradient(circle at 18% 12%, rgba(78,148,197,.22), transparent 26%),
-        radial-gradient(circle at 82% 78%, rgba(208,166,79,.14), transparent 25%),
+        radial-gradient(circle at 18% 12%, rgba(78,148,197,.20), transparent 27%),
+        radial-gradient(circle at 82% 78%, rgba(208,166,79,.13), transparent 26%),
         linear-gradient(145deg, #0c2944 0%, #123b5d 50%, #0a2239 100%);
       box-shadow: 0 13px 28px rgba(14,48,76,.16);
       color: white;
@@ -210,10 +209,10 @@
     .stars {
       position: absolute;
       inset: 0;
-      opacity: .38;
+      opacity: .27;
       background-image:
-        radial-gradient(circle, rgba(255,255,255,.9) 1px, transparent 1.5px),
-        radial-gradient(circle, rgba(255,255,255,.5) 1px, transparent 1.5px);
+        radial-gradient(circle, rgba(255,255,255,.9) 1px, transparent 1.4px),
+        radial-gradient(circle, rgba(255,255,255,.45) 1px, transparent 1.4px);
       background-position: 18px 20px, 58px 70px;
       background-size: 92px 92px, 117px 117px;
       pointer-events: none;
@@ -234,7 +233,7 @@
       position: relative;
       z-index: 2;
       width: 100%;
-      margin: 11px auto 0;
+      margin: 6px auto 0;
     }
 
     #worldSvg {
@@ -245,53 +244,81 @@
     }
 
     .land {
-      fill: #275576;
-      stroke: #3d6b88;
-      stroke-width: 1;
-      opacity: .92;
+      fill: #2a5878;
+      stroke: #477694;
+      stroke-width: .9;
+      stroke-linejoin: round;
+      opacity: .94;
     }
 
-    .route {
-      fill: none;
-      stroke: #e0b653;
-      stroke-width: 3;
-      stroke-linecap: round;
-      stroke-dasharray: 7 7;
-      filter: drop-shadow(0 0 5px rgba(224,182,83,.45));
+    .island {
+      fill: #2a5878;
+      stroke: #477694;
+      stroke-width: .7;
+      opacity: .94;
     }
 
     .route-glow {
       fill: none;
-      stroke: rgba(224,182,83,.18);
-      stroke-width: 9;
+      stroke: rgba(230,188,88,.17);
+      stroke-width: 7;
       stroke-linecap: round;
+    }
+
+    .route {
+      fill: none;
+      stroke: #e2b958;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-dasharray: 6 6;
+      filter: drop-shadow(0 0 4px rgba(226,185,88,.42));
+    }
+
+    .origin-ring {
+      fill: rgba(101,184,237,.18);
+      stroke: rgba(101,184,237,.35);
+      stroke-width: 1;
     }
 
     .origin-dot {
       fill: #65b8ed;
-      stroke: white;
-      stroke-width: 2.5;
+      stroke: #ffffff;
+      stroke-width: 2.4;
+    }
+
+    .kabah-ring {
+      fill: rgba(226,185,88,.18);
+      stroke: rgba(226,185,88,.42);
+      stroke-width: 1;
     }
 
     .kabah-dot {
-      fill: #e0b653;
-      stroke: white;
-      stroke-width: 2.5;
+      fill: #e2b958;
+      stroke: #ffffff;
+      stroke-width: 2.6;
     }
 
     .map-label {
-      fill: white;
-      font-size: 12px;
+      fill: #ffffff;
+      font-size: 11.5px;
       font-weight: 700;
+      paint-order: stroke;
+      stroke: rgba(10,34,57,.65);
+      stroke-width: 2px;
+      stroke-linejoin: round;
     }
 
     .map-label-sub {
-      fill: #c9d8e5;
-      font-size: 9.5px;
+      fill: #d2dfe8;
+      font-size: 9px;
+      paint-order: stroke;
+      stroke: rgba(10,34,57,.65);
+      stroke-width: 2px;
+      stroke-linejoin: round;
     }
 
     .kabah-symbol {
-      font-size: 19px;
+      font-size: 17px;
     }
 
     .journey-summary {
@@ -301,8 +328,8 @@
       grid-template-columns: 1fr auto 1fr;
       gap: 12px;
       align-items: center;
-      margin-top: 4px;
-      padding: 13px 14px;
+      margin-top: 1px;
+      padding: 12px 14px;
       border: 1px solid rgba(255,255,255,.13);
       border-radius: 14px;
       background: rgba(255,255,255,.065);
@@ -337,7 +364,7 @@
       font-size: 20px;
     }
 
-    /* DISTANCE */
+    /* RESULT */
 
     .distance-card {
       margin-top: 12px;
@@ -528,8 +555,7 @@
       }
 
       .world-card {
-        min-height: auto;
-        padding: 16px 12px 13px;
+        padding: 15px 10px 12px;
       }
 
       .journey-summary {
@@ -633,79 +659,174 @@
 
           <svg
             id="worldSvg"
-            viewBox="0 0 620 250"
+            viewBox="0 0 620 238"
             role="img"
-            aria-label="Stylized world map showing the selected city and Makkah"
+            aria-label="World map showing the selected city and Makkah"
           >
 
-            <!-- Stylized world landmasses -->
-
+            <!-- NORTH AMERICA -->
             <path class="land" d="
-              M40 65
-              C65 38 103 34 127 46
-              C149 57 154 78 143 93
-              C132 107 116 104 107 117
-              C95 133 89 151 72 153
-              C57 154 55 136 47 124
-              C36 108 25 89 40 65 Z
+              M45 55
+              L58 41 L78 33 L101 29 L122 34
+              L138 43 L151 42 L163 51 L158 61
+              L145 65 L139 76 L128 80 L120 91
+              L110 93 L104 105 L93 109 L83 102
+              L77 91 L64 88 L59 76 L48 71 Z
+
+              M122 31
+              L136 22 L153 19 L164 24 L158 31
+              L144 34 Z
             "/>
 
+            <!-- CENTRAL AMERICA -->
             <path class="land" d="
-              M126 147
-              C145 141 162 151 168 168
-              C174 184 164 199 157 216
-              C151 231 138 240 128 229
-              C120 220 123 207 116 196
-              C106 179 107 158 126 147 Z
+              M105 105
+              L115 109 L121 116 L132 119
+              L137 126 L130 130 L120 125
+              L113 119 Z
             "/>
 
+            <!-- SOUTH AMERICA -->
             <path class="land" d="
-              M249 55
-              C273 42 300 43 319 52
-              C334 59 344 69 360 67
-              C380 64 394 51 416 54
-              C437 57 450 69 471 70
-              C493 71 513 67 533 80
-              C550 91 555 108 544 120
-              C533 132 515 127 502 136
-              C486 146 476 163 457 162
-              C442 162 434 149 421 145
-              C404 139 390 147 375 141
-              C357 133 354 116 339 109
-              C324 101 307 107 291 101
-              C273 94 259 82 249 55 Z
+              M137 128
+              L151 126 L166 134 L175 145
+              L172 158 L166 167 L162 181
+              L155 194 L149 208 L140 219
+              L134 209 L135 196 L129 184
+              L126 170 L119 159 L121 146
+              L128 138 Z
             "/>
 
+            <!-- GREENLAND -->
             <path class="land" d="
-              M323 119
-              C340 112 361 118 372 134
-              C383 150 377 166 369 183
-              C360 202 350 219 334 217
-              C318 214 317 193 309 178
-              C299 159 302 132 323 119 Z
+              M171 25
+              L190 17 L209 20 L216 29
+              L208 39 L191 44 L176 38 Z
             "/>
 
+            <!-- EUROPE -->
             <path class="land" d="
-              M501 174
-              C517 164 541 166 554 178
-              C567 190 561 208 548 217
-              C534 226 512 224 500 213
-              C490 203 489 183 501 174 Z
+              M294 57
+              L306 47 L319 48 L326 43
+              L337 48 L345 45 L354 50
+              L363 48 L371 54 L365 61
+              L355 62 L351 70 L340 68
+              L332 75 L322 71 L314 75
+              L307 69 L299 70 Z
             "/>
 
-            <!-- Route glow -->
-            <path id="routeGlow" class="route-glow" d=""></path>
+            <!-- AFRICA -->
+            <path class="land" d="
+              M308 79
+              L325 73 L345 76 L359 86
+              L366 101 L362 116 L354 128
+              L348 143 L340 160 L329 174
+              L318 166 L313 151 L305 139
+              L301 124 L292 111 L291 95
+              L299 85 Z
+            "/>
 
-            <!-- Route -->
-            <path id="routePath" class="route" d=""></path>
+            <!-- ASIA -->
+            <path class="land" d="
+              M363 55
+              L378 46 L396 43 L412 47
+              L426 43 L441 49 L458 48
+              L472 55 L490 55 L508 63
+              L523 73 L536 84 L530 94
+              L517 95 L510 104 L497 104
+              L489 113 L476 111 L466 103
+              L452 104 L443 96 L431 96
+              L422 88 L409 89 L400 82
+              L389 83 L382 73 L370 70 Z
+            "/>
 
-            <!-- Origin -->
+            <!-- ARABIAN PENINSULA -->
+            <path class="land" d="
+              M370 99
+              L384 100 L394 110 L391 122
+              L380 128 L369 121 L363 110 Z
+            "/>
+
+            <!-- INDIA -->
+            <path class="land" d="
+              M432 103
+              L444 105 L452 116 L448 128
+              L441 139 L434 130 L430 118 Z
+            "/>
+
+            <!-- SOUTHEAST ASIA -->
+            <path class="land" d="
+              M472 112
+              L484 115 L491 124 L486 132
+              L478 128 L472 121 Z
+            "/>
+
+            <!-- JAPAN -->
+            <path class="island" d="
+              M526 84
+              L530 89 L528 96 L524 92 Z
+            "/>
+
+            <!-- AUSTRALIA -->
+            <path class="land" d="
+              M500 161
+              L516 151 L536 151 L551 158
+              L561 170 L556 184 L544 193
+              L526 195 L511 188 L501 178 Z
+            "/>
+
+            <!-- MADAGASCAR -->
+            <path class="island" d="
+              M370 159
+              L375 165 L373 178 L368 183
+              L365 172 Z
+            "/>
+
+            <!-- UK / IRELAND -->
+            <path class="island" d="
+              M292 52 L296 47 L300 51 L298 57 Z
+            "/>
+
+            <!-- INDONESIA -->
+            <path class="island" d="
+              M474 139
+              L489 140 L500 145 L514 143
+              L524 148 L512 151 L498 149
+              L485 151 Z
+            "/>
+
+
+            <!-- DYNAMIC ROUTE -->
+
+            <path
+              id="routeGlow"
+              class="route-glow"
+              d=""
+            ></path>
+
+            <path
+              id="routePath"
+              class="route"
+              d=""
+            ></path>
+
+
+            <!-- DYNAMIC CITY MARKER -->
+
+            <circle
+              id="originRing"
+              class="origin-ring"
+              cx="100"
+              cy="100"
+              r="11"
+            ></circle>
+
             <circle
               id="originDot"
               class="origin-dot"
               cx="100"
               cy="100"
-              r="6"
+              r="5.5"
             ></circle>
 
             <text
@@ -726,35 +847,45 @@
               Canada
             </text>
 
-            <!-- Makkah -->
+
+            <!-- MAKKAH MARKER -->
+
+            <circle
+              id="kabahRing"
+              class="kabah-ring"
+              cx="379"
+              cy="103"
+              r="13"
+            ></circle>
+
             <circle
               id="kabahDot"
               class="kabah-dot"
-              cx="374"
-              cy="132"
+              cx="379"
+              cy="103"
               r="6"
             ></circle>
 
             <text
               class="kabah-symbol"
-              x="383"
-              y="126"
+              x="389"
+              y="98"
             >
               🕋
             </text>
 
             <text
               class="map-label"
-              x="405"
-              y="124"
+              x="410"
+              y="96"
             >
               Makkah
             </text>
 
             <text
               class="map-label-sub"
-              x="405"
-              y="139"
+              x="410"
+              y="110"
             >
               Saudi Arabia
             </text>
@@ -763,26 +894,41 @@
 
         </div>
 
+
         <div class="journey-summary">
 
           <div class="summary-place">
-            <div class="summary-name" id="summaryCity">
+
+            <div
+              class="summary-name"
+              id="summaryCity"
+            >
               Toronto
             </div>
-            <div class="summary-country" id="summaryCountry">
+
+            <div
+              class="summary-country"
+              id="summaryCountry"
+            >
               Canada
             </div>
+
           </div>
 
-          <div class="summary-arrow">→</div>
+          <div class="summary-arrow">
+            →
+          </div>
 
           <div class="summary-place right">
+
             <div class="summary-name">
               Kaʿbah
             </div>
+
             <div class="summary-country">
               Makkah
             </div>
+
           </div>
 
         </div>
@@ -804,26 +950,38 @@
           Great-circle distance across the Earth
         </div>
 
+
         <div class="details">
 
           <div class="detail">
+
             <div class="detail-title">
               Direction
             </div>
 
-            <div class="detail-value" id="directionValue">
+            <div
+              class="detail-value"
+              id="directionValue"
+            >
               —
             </div>
+
           </div>
 
+
           <div class="detail">
+
             <div class="detail-title">
               Initial Bearing
             </div>
 
-            <div class="detail-value" id="bearingValue">
+            <div
+              class="detail-value"
+              id="bearingValue"
+            >
               —
             </div>
+
           </div>
 
         </div>
@@ -831,30 +989,47 @@
       </div>
 
 
-      <div class="perspective" id="perspective">
+      <div
+        class="perspective"
+        id="perspective"
+      >
 
         <button
           class="perspective-button"
           id="perspectiveButton"
           aria-expanded="false"
         >
-          <span>🌍 Put this distance into perspective</span>
-          <span class="chevron">⌄</span>
+
+          <span>
+            🌍 Put this distance into perspective
+          </span>
+
+          <span class="chevron">
+            ⌄
+          </span>
+
         </button>
+
 
         <div class="perspective-content">
 
           <div class="perspective-grid">
 
+
             <div class="perspective-item">
 
-              <div class="perspective-icon">🌎</div>
+              <div class="perspective-icon">
+                🌎
+              </div>
 
               <div class="perspective-title">
                 Around the Earth
               </div>
 
-              <div class="perspective-text" id="earthPerspective">
+              <div
+                class="perspective-text"
+                id="earthPerspective"
+              >
                 —
               </div>
 
@@ -863,13 +1038,18 @@
 
             <div class="perspective-item">
 
-              <div class="perspective-icon">✈️</div>
+              <div class="perspective-icon">
+                ✈️
+              </div>
 
               <div class="perspective-title">
                 At Cruising Speed
               </div>
 
-              <div class="perspective-text" id="flightPerspective">
+              <div
+                class="perspective-text"
+                id="flightPerspective"
+              >
                 —
               </div>
 
@@ -877,9 +1057,14 @@
 
           </div>
 
-          <div class="reflection" id="reflectionText">
-            Wherever Muslims are in the world, they turn toward the
-            Kaʿbah in Makkah during Ṣalāh.
+
+          <div
+            class="reflection"
+            id="reflectionText"
+          >
+            Wherever Muslims are in the world,
+            they turn toward the Kaʿbah in Makkah
+            during Ṣalāh.
           </div>
 
         </div>
@@ -887,7 +1072,10 @@
       </div>
 
 
-      <button class="again" id="againButton">
+      <button
+        class="again"
+        id="againButton"
+      >
         Try Another City
       </button>
 
@@ -895,8 +1083,8 @@
 
 
     <p class="note">
-      Distances and directions are approximate and are calculated from
-      the selected city's coordinates to the Kaʿbah in Makkah.
+      Distances and directions are approximate and are calculated
+      from the selected city's coordinates to the Kaʿbah in Makkah.
     </p>
 
   </div>
@@ -913,6 +1101,7 @@
 
   const EARTH_CIRCUMFERENCE = 40075;
   const COMPARISON_SPEED = 900;
+
 
   const cityInput =
     document.getElementById("cityInput");
@@ -959,6 +1148,9 @@
   const againButton =
     document.getElementById("againButton");
 
+  const originRing =
+    document.getElementById("originRing");
+
   const originDot =
     document.getElementById("originDot");
 
@@ -974,6 +1166,12 @@
   const routeGlow =
     document.getElementById("routeGlow");
 
+  const kabahRing =
+    document.getElementById("kabahRing");
+
+  const kabahDot =
+    document.getElementById("kabahDot");
+
 
   function toRadians(degrees) {
     return degrees * Math.PI / 180;
@@ -985,12 +1183,21 @@
   }
 
 
-  function calculateDistance(lat1, lon1, lat2, lon2) {
+  function calculateDistance(
+    lat1,
+    lon1,
+    lat2,
+    lon2
+  ) {
 
-    const earthRadius = 6371.0088;
+    const earthRadius =
+      6371.0088;
 
-    const phi1 = toRadians(lat1);
-    const phi2 = toRadians(lat2);
+    const phi1 =
+      toRadians(lat1);
+
+    const phi2 =
+      toRadians(lat2);
 
     const deltaPhi =
       toRadians(lat2 - lat1);
@@ -1015,10 +1222,18 @@
   }
 
 
-  function calculateBearing(lat1, lon1, lat2, lon2) {
+  function calculateBearing(
+    lat1,
+    lon1,
+    lat2,
+    lon2
+  ) {
 
-    const phi1 = toRadians(lat1);
-    const phi2 = toRadians(lat2);
+    const phi1 =
+      toRadians(lat1);
+
+    const phi2 =
+      toRadians(lat2);
 
     const deltaLambda =
       toRadians(lon2 - lon1);
@@ -1039,11 +1254,15 @@
         Math.atan2(y, x)
       );
 
-    return (bearing + 360) % 360;
+    return (
+      bearing + 360
+    ) % 360;
   }
 
 
-  function bearingToDirection(bearing) {
+  function bearingToDirection(
+    bearing
+  ) {
 
     const directions = [
       "North",
@@ -1057,32 +1276,48 @@
     ];
 
     return directions[
-      Math.round(bearing / 45) % 8
+      Math.round(
+        bearing / 45
+      ) % 8
     ];
   }
 
 
   /*
-    Convert longitude/latitude into our
-    stylized SVG map coordinates.
+    This map uses an equirectangular
+    longitude/latitude projection.
+
+    The continent artwork is decorative,
+    while the city and Kaʿbah positions
+    are calculated from real coordinates.
   */
 
   function mapPoint(lat, lon) {
 
     const width = 620;
-    const height = 250;
+    const height = 238;
 
     const x =
-      ((lon + 180) / 360) * width;
+      ((lon + 180) / 360) *
+      width;
 
     const y =
-      ((90 - lat) / 180) * height;
+      ((90 - lat) / 180) *
+      height;
 
-    return { x, y };
+    return {
+      x,
+      y
+    };
   }
 
 
-  function drawConnection(lat, lon, city, country) {
+  function drawConnection(
+    lat,
+    lon,
+    city,
+    country
+  ) {
 
     const start =
       mapPoint(lat, lon);
@@ -1092,6 +1327,21 @@
         KABAH.lat,
         KABAH.lon
       );
+
+
+    /*
+      Move both city marker layers.
+    */
+
+    originRing.setAttribute(
+      "cx",
+      start.x
+    );
+
+    originRing.setAttribute(
+      "cy",
+      start.y
+    );
 
     originDot.setAttribute(
       "cx",
@@ -1103,10 +1353,36 @@
       start.y
     );
 
+
     /*
-      Keep the city label readable by
-      deciding whether to place it to
-      the left or right of the marker.
+      Move Makkah marker layers
+      according to the same projection.
+    */
+
+    kabahRing.setAttribute(
+      "cx",
+      end.x
+    );
+
+    kabahRing.setAttribute(
+      "cy",
+      end.y
+    );
+
+    kabahDot.setAttribute(
+      "cx",
+      end.x
+    );
+
+    kabahDot.setAttribute(
+      "cy",
+      end.y
+    );
+
+
+    /*
+      City label switches sides when
+      close to the right edge.
     */
 
     const placeLabelLeft =
@@ -1121,6 +1397,7 @@
       placeLabelLeft
         ? "end"
         : "start";
+
 
     originMapLabel.setAttribute(
       "x",
@@ -1139,6 +1416,7 @@
 
     originMapLabel.textContent =
       city;
+
 
     originMapCountry.setAttribute(
       "x",
@@ -1160,35 +1438,45 @@
 
 
     /*
-      Curved route.
-      The control point rises above
-      the straight line to create the
-      travel-arc effect.
+      Elegant curved route.
     */
 
     const middleX =
       (start.x + end.x) / 2;
 
-    const distanceX =
-      Math.abs(end.x - start.x);
+    const horizontalDistance =
+      Math.abs(
+        end.x - start.x
+      );
 
-    let curveHeight =
+    const verticalDistance =
+      Math.abs(
+        end.y - start.y
+      );
+
+    const curveHeight =
       Math.min(
-        85,
-        30 + distanceX * .13
+        70,
+        23 +
+        horizontalDistance * .10 +
+        verticalDistance * .05
       );
 
     const middleY =
       Math.max(
-        18,
-        Math.min(start.y, end.y) -
-        curveHeight
+        14,
+        Math.min(
+          start.y,
+          end.y
+        ) - curveHeight
       );
+
 
     const path =
       `M ${start.x} ${start.y}
        Q ${middleX} ${middleY}
        ${end.x} ${end.y}`;
+
 
     routePath.setAttribute(
       "d",
@@ -1212,25 +1500,36 @@
       "&q=" +
       encodeURIComponent(city);
 
+
     const response =
-      await fetch(url, {
-        headers: {
-          "Accept": "application/json"
+      await fetch(
+        url,
+        {
+          headers: {
+            "Accept":
+              "application/json"
+          }
         }
-      });
+      );
+
 
     if (!response.ok) {
+
       throw new Error(
         "City lookup failed."
       );
+
     }
+
 
     const data =
       await response.json();
 
+
     if (!data.length) {
       return null;
     }
+
 
     return data[0];
   }
@@ -1242,26 +1541,33 @@
   ) {
 
     const percentEarth =
-      (distance /
-      EARTH_CIRCUMFERENCE) * 100;
+      (
+        distance /
+        EARTH_CIRCUMFERENCE
+      ) * 100;
+
 
     const equivalentHours =
       distance /
       COMPARISON_SPEED;
+
 
     earthPerspective.textContent =
       "This distance is about " +
       percentEarth.toFixed(1) +
       "% of Earth's circumference.";
 
+
     flightPerspective.textContent =
       "At about 900 km/h, covering the same distance would take roughly " +
       equivalentHours.toFixed(1) +
       " hours.";
 
+
     reflectionText.textContent =
       "Despite being approximately " +
-      Math.round(distance).toLocaleString() +
+      Math.round(distance)
+        .toLocaleString() +
       " km away, Muslims in " +
       city +
       " turn toward the Kaʿbah in Makkah during Ṣalāh.";
@@ -1276,26 +1582,42 @@
       cityOverride ||
       cityInput.value.trim();
 
+
     if (!city) {
+
       status.textContent =
         "Please enter a city first.";
+
       return;
+
     }
 
-    result.classList.remove("show");
 
-    perspective.classList.remove("open");
+    result.classList.remove(
+      "show"
+    );
+
+
+    perspective.classList.remove(
+      "open"
+    );
+
 
     perspectiveButton.setAttribute(
       "aria-expanded",
       "false"
     );
 
+
     status.textContent =
-      "Finding " + city + "…";
+      "Finding " +
+      city +
+      "…";
+
 
     calculateButton.disabled =
       true;
+
 
     calculateButton.textContent =
       "Calculating…";
@@ -1306,20 +1628,28 @@
       const place =
         await findCity(city);
 
+
       if (!place) {
 
         status.textContent =
           "We couldn't find that city. Try including the country as well.";
 
         return;
+
       }
 
 
       const lat =
-        parseFloat(place.lat);
+        parseFloat(
+          place.lat
+        );
+
 
       const lon =
-        parseFloat(place.lon);
+        parseFloat(
+          place.lon
+        );
+
 
       const address =
         place.address || {};
@@ -1358,8 +1688,9 @@
 
 
       distanceNumber.textContent =
-        Math.round(distance)
-          .toLocaleString();
+        Math.round(
+          distance
+        ).toLocaleString();
 
 
       directionValue.textContent =
@@ -1369,7 +1700,9 @@
 
 
       bearingValue.textContent =
-        Math.round(bearing) +
+        Math.round(
+          bearing
+        ) +
         "°";
 
 
@@ -1407,7 +1740,10 @@
 
     catch (error) {
 
-      console.error(error);
+      console.error(
+        error
+      );
+
 
       status.textContent =
         "Something went wrong while looking up that city. Please try again.";
@@ -1418,6 +1754,7 @@
 
       calculateButton.disabled =
         false;
+
 
       calculateButton.textContent =
         "Calculate Distance";
@@ -1437,8 +1774,13 @@
     "keydown",
     event => {
 
-      if (event.key === "Enter") {
+      if (
+        event.key ===
+        "Enter"
+      ) {
+
         runCalculation();
+
       }
 
     }
@@ -1446,25 +1788,33 @@
 
 
   document
-    .querySelectorAll(".example")
-    .forEach(button => {
+    .querySelectorAll(
+      ".example"
+    )
+    .forEach(
+      button => {
 
-      button.addEventListener(
-        "click",
-        () => {
+        button.addEventListener(
+          "click",
+          () => {
 
-          const city =
-            button.dataset.city;
+            const city =
+              button.dataset.city;
 
-          cityInput.value =
-            city;
 
-          runCalculation(city);
+            cityInput.value =
+              city;
 
-        }
-      );
 
-    });
+            runCalculation(
+              city
+            );
+
+          }
+        );
+
+      }
+    );
 
 
   perspectiveButton.addEventListener(
@@ -1472,9 +1822,12 @@
     () => {
 
       const isOpen =
-        perspective.classList.toggle(
-          "open"
-        );
+        perspective
+          .classList
+          .toggle(
+            "open"
+          );
+
 
       perspectiveButton.setAttribute(
         "aria-expanded",
@@ -1493,18 +1846,25 @@
         "show"
       );
 
+
       perspective.classList.remove(
         "open"
       );
+
 
       perspectiveButton.setAttribute(
         "aria-expanded",
         "false"
       );
 
-      cityInput.value = "";
 
-      status.textContent = "";
+      cityInput.value =
+        "";
+
+
+      status.textContent =
+        "";
+
 
       cityInput.focus();
 
