@@ -152,21 +152,18 @@
 
     .placeholder {
       margin-top: 16px;
-      min-height: 290px;
       border: 1px solid var(--border);
       border-radius: 18px;
       background:
-        radial-gradient(circle at 50% 35%, rgba(214, 173, 76, 0.08), transparent 32%),
+        radial-gradient(circle at 50% 18%, rgba(214, 173, 76, 0.08), transparent 26%),
         linear-gradient(180deg, #fbfcfd 0%, #f5f8fa 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      padding: 30px 24px 20px;
       text-align: center;
-      padding: 35px 20px;
     }
 
-    .placeholder-inner {
-      max-width: 390px;
+    .placeholder-main {
+      max-width: 440px;
+      margin: 0 auto;
     }
 
     .placeholder-icon {
@@ -186,7 +183,7 @@
     .placeholder-title {
       margin: 0 0 7px;
       color: var(--navy);
-      font-size: 18px;
+      font-size: 19px;
       font-weight: 700;
     }
 
@@ -195,6 +192,61 @@
       color: var(--muted);
       font-size: 14px;
       line-height: 1.55;
+    }
+
+    .placeholder-preview-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 11px;
+      max-width: 650px;
+      margin: 23px auto 0;
+    }
+
+    .placeholder-preview-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 14px;
+    }
+
+    .placeholder-preview-card strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--navy);
+      font-size: 14px;
+    }
+
+    .placeholder-preview-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .placeholder-reflection {
+      max-width: 650px;
+      margin: 12px auto 0;
+      padding: 16px;
+      background: #fbf8ee;
+      border: 1px solid #eee3c5;
+      border-radius: 14px;
+      color: #5f5232;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .placeholder-reflection strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #514522;
+    }
+
+    .placeholder-note {
+      max-width: 650px;
+      margin: 14px auto 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
     }
 
     /* RESULTS */
@@ -514,7 +566,11 @@
       }
 
       .placeholder {
-        min-height: 250px;
+        padding: 25px 14px 18px;
+      }
+
+      .placeholder-preview-grid {
+        grid-template-columns: 1fr;
       }
 
       .map-card {
@@ -595,10 +651,15 @@
 
     </section>
 
-    <!-- Default placeholder -->
+    <!-- DEFAULT PLACEHOLDER -->
+
     <section id="placeholder" class="placeholder">
-      <div class="placeholder-inner">
-        <div class="placeholder-icon" aria-hidden="true">🕋</div>
+
+      <div class="placeholder-main">
+
+        <div class="placeholder-icon" aria-hidden="true">
+          🕋
+        </div>
 
         <h2 class="placeholder-title">
           Enter a city to begin
@@ -607,10 +668,45 @@
         <p class="placeholder-text">
           Discover its approximate distance and direction to the Kaʿbah.
         </p>
+
       </div>
+
+      <div class="placeholder-preview-grid">
+
+        <div class="placeholder-preview-card">
+          <strong>📍 Distance &amp; Direction</strong>
+          <p>
+            See approximately how far your selected city is from Makkah
+            and the direction toward the Kaʿbah.
+          </p>
+        </div>
+
+        <div class="placeholder-preview-card">
+          <strong>🌍 Put the distance into perspective</strong>
+          <p>
+            See how the distance compares with the size of the Earth and
+            what it represents at a conceptual cruising speed.
+          </p>
+        </div>
+
+      </div>
+
+      <div class="placeholder-reflection">
+        <strong>A shared direction</strong>
+        Wherever Muslims are in the world, they turn toward the Kaʿbah
+        in Makkah during Ṣalāh.
+      </div>
+
+      <p class="placeholder-note">
+        Distances and directions are approximate and are calculated using
+        representative coordinates for each city and the Kaʿbah in Makkah.
+      </p>
+
     </section>
 
-    <!-- Results -->
+
+    <!-- RESULTS -->
+
     <section id="results">
 
       <div class="map-card">
@@ -772,7 +868,6 @@
     const markerLayer = document.getElementById("markerLayer");
     const mapLoading = document.getElementById("mapLoading");
 
-
     let worldDataLoaded = false;
 
 
@@ -848,10 +943,9 @@
         "Northwest"
       ];
 
-      const index =
-        Math.round(bearing / 45) % 8;
-
-      return directions[index];
+      return directions[
+        Math.round(bearing / 45) % 8
+      ];
     }
 
 
@@ -891,15 +985,15 @@
         const top = project(lon, 90);
         const bottom = project(lon, -90);
 
-        const line = createSVGElement("line", {
-          x1: top.x,
-          y1: top.y,
-          x2: bottom.x,
-          y2: bottom.y,
-          class: "graticule"
-        });
-
-        graticuleLayer.appendChild(line);
+        graticuleLayer.appendChild(
+          createSVGElement("line", {
+            x1: top.x,
+            y1: top.y,
+            x2: bottom.x,
+            y2: bottom.y,
+            class: "graticule"
+          })
+        );
       }
 
 
@@ -908,15 +1002,15 @@
         const left = project(-180, lat);
         const right = project(180, lat);
 
-        const line = createSVGElement("line", {
-          x1: left.x,
-          y1: left.y,
-          x2: right.x,
-          y2: right.y,
-          class: "graticule"
-        });
-
-        graticuleLayer.appendChild(line);
+        graticuleLayer.appendChild(
+          createSVGElement("line", {
+            x1: left.x,
+            y1: left.y,
+            x2: right.x,
+            y2: right.y,
+            class: "graticule"
+          })
+        );
       }
     }
 
@@ -997,9 +1091,7 @@
             properties.NAME ||
             "";
 
-          if (
-            name.toLowerCase() === "antarctica"
-          ) {
+          if (name.toLowerCase() === "antarctica") {
             return;
           }
 
@@ -1010,13 +1102,12 @@
             return;
           }
 
-          const path =
+          countriesLayer.appendChild(
             createSVGElement("path", {
               d,
               class: "country"
-            });
-
-          countriesLayer.appendChild(path);
+            })
+          );
         });
 
         worldDataLoaded = true;
@@ -1072,20 +1163,10 @@
       const makkah =
         project(KABAH.lon, KABAH.lat);
 
-
-      /*
-        The route is a visual connection between
-        the selected city and Makkah.
-
-        The numerical distance itself is calculated
-        separately using the great-circle Haversine
-        formula.
-      */
-
       let cityX = city.x;
       let makkahX = makkah.x;
 
-      let difference =
+      const difference =
         makkahX - cityX;
 
       if (Math.abs(difference) > MAP_WIDTH / 2) {
@@ -1121,16 +1202,9 @@
       routeLayer.appendChild(route);
 
 
-      /*
-        If the route crosses the date line,
-        draw a translated copy so it remains
-        visually continuous on the map.
-      */
-
       if (cityX > MAP_WIDTH || makkahX > MAP_WIDTH) {
 
-        const copy =
-          route.cloneNode();
+        const copy = route.cloneNode();
 
         copy.setAttribute(
           "transform",
@@ -1140,10 +1214,10 @@
         routeLayer.appendChild(copy);
       }
 
+
       if (cityX < 0 || makkahX < 0) {
 
-        const copy =
-          route.cloneNode();
+        const copy = route.cloneNode();
 
         copy.setAttribute(
           "transform",
@@ -1154,15 +1228,14 @@
       }
 
 
-      const cityDot =
+      markerLayer.appendChild(
         createSVGElement("circle", {
           cx: city.x,
           cy: city.y,
           r: 5.5,
           class: "city-dot"
-        });
-
-      markerLayer.appendChild(cityDot);
+        })
+      );
 
 
       const cityAnchor =
@@ -1174,6 +1247,7 @@
         cityAnchor === "end"
           ? -9
           : 9;
+
 
       addTextLabel(
         city.x + cityOffset,
@@ -1196,39 +1270,35 @@
       }
 
 
-      const makkahDot =
+      markerLayer.appendChild(
         createSVGElement("circle", {
           cx: makkah.x,
           cy: makkah.y,
           r: 5.8,
           class: "makkah-dot"
-        });
-
-      markerLayer.appendChild(makkahDot);
+        })
+      );
 
 
       addTextLabel(
         makkah.x + 9,
         makkah.y - 15,
         "🕋",
-        "kabah-symbol",
-        "start"
+        "kabah-symbol"
       );
 
       addTextLabel(
         makkah.x + 9,
         makkah.y - 2,
         "Makkah",
-        "map-label",
-        "start"
+        "map-label"
       );
 
       addTextLabel(
         makkah.x + 9,
         makkah.y + 11,
         "Saudi Arabia",
-        "map-sub-label",
-        "start"
+        "map-sub-label"
       );
     }
 
@@ -1354,7 +1424,6 @@
         const direction =
           compassDirection(bearing);
 
-
         const roundedDistance =
           Math.round(distance);
 
@@ -1371,7 +1440,6 @@
 
         distanceNumber.textContent =
           roundedDistance.toLocaleString();
-
 
         directionText.textContent =
           direction;
@@ -1409,12 +1477,6 @@
         placeholder.style.display = "none";
         results.style.display = "block";
 
-
-        /*
-          If the world map is still loading,
-          keep the loading message visible until
-          the geographic data finishes loading.
-        */
 
         if (worldDataLoaded) {
           mapLoading.style.display = "none";
@@ -1490,7 +1552,7 @@
       () => {
 
         results.style.display = "none";
-        placeholder.style.display = "flex";
+        placeholder.style.display = "block";
 
         resetPerspective();
 
