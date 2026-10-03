@@ -1,1938 +1,1510 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>How Far Are You From the Kaʿbah?</title>
-
-<style>
-*{box-sizing:border-box}
-
-html,body{
-  margin:0;
-  padding:0;
-  background:transparent;
-  font-family:Arial,Helvetica,sans-serif;
-  color:#17324d;
-}
-
-body{padding:8px}
-
-.aks-kabah{
-  width:100%;
-  max-width:900px;
-  margin:auto;
-  background:
-    radial-gradient(circle at top right,rgba(218,178,92,.11),transparent 28%),
-    linear-gradient(145deg,#f8fbff 0%,#fff 48%,#f7fbff 100%);
-  border:1px solid #d9e5f0;
-  border-radius:22px;
-  overflow:hidden;
-  box-shadow:0 8px 28px rgba(22,58,91,.08);
-}
-
-.top-accent{
-  height:6px;
-  background:linear-gradient(90deg,#1d5d91,#d2aa55,#1d5d91);
-}
-
-.content{padding:30px 26px 28px}
-
-.icon{
-  width:62px;
-  height:62px;
-  margin:0 auto 13px;
-  border-radius:50%;
-  background:#173f66;
-  color:white;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:31px;
-  box-shadow:0 7px 18px rgba(23,63,102,.17);
-}
-
-h1{
-  margin:0;
-  text-align:center;
-  color:#173f66;
-  font-size:clamp(25px,5vw,36px);
-  line-height:1.18;
-}
-
-.subtitle{
-  max-width:650px;
-  margin:10px auto 25px;
-  text-align:center;
-  color:#5d7185;
-  font-size:15.5px;
-  line-height:1.55;
-}
-
-.search-area,
-.result,
-.note{
-  max-width:660px;
-  margin-left:auto;
-  margin-right:auto;
-}
-
-.search-row{
-  display:flex;
-  gap:10px;
-}
-
-.input-wrap{flex:1}
-
-input{
-  width:100%;
-  min-height:50px;
-  padding:0 16px;
-  border:1.5px solid #cbd9e6;
-  border-radius:13px;
-  outline:none;
-  background:white;
-  color:#17324d;
-  font-size:16px;
-}
-
-input:focus{
-  border-color:#3279ad;
-  box-shadow:0 0 0 4px rgba(50,121,173,.10);
-}
-
-button{
-  border:0;
-  font-family:inherit;
-  cursor:pointer;
-}
-
-.calculate{
-  min-height:50px;
-  padding:0 20px;
-  border-radius:13px;
-  background:#1d5d91;
-  color:white;
-  font-weight:700;
-  font-size:15px;
-}
-
-.calculate:hover{background:#164d79}
-.calculate:disabled{opacity:.7;cursor:wait}
-
-.examples{
-  margin-top:13px;
-  text-align:center;
-  color:#738597;
-  font-size:13px;
-  line-height:1.8;
-}
-
-.example{
-  margin:3px;
-  padding:5px 9px;
-  border-radius:999px;
-  background:#edf5fb;
-  color:#275f8b;
-  font-size:12.5px;
-  font-weight:700;
-}
-
-.example:hover{background:#deedf8}
-
-.status{
-  min-height:22px;
-  margin-top:13px;
-  text-align:center;
-  color:#7b5d23;
-  font-size:13.5px;
-}
-
-.result{
-  display:none;
-  margin-top:20px;
-  animation:reveal .35s ease;
-}
-
-.result.show{display:block}
-
-@keyframes reveal{
-  from{opacity:0;transform:translateY(8px)}
-  to{opacity:1;transform:translateY(0)}
-}
-
-
-/* REAL WORLD MAP */
-
-.world-card{
-  position:relative;
-  overflow:hidden;
-  padding:17px 17px 15px;
-  border-radius:20px;
-  background:
-    radial-gradient(circle at 18% 12%,rgba(78,148,197,.20),transparent 27%),
-    radial-gradient(circle at 82% 78%,rgba(208,166,79,.13),transparent 26%),
-    linear-gradient(145deg,#0c2944 0%,#123b5d 50%,#0a2239 100%);
-  box-shadow:0 13px 28px rgba(14,48,76,.16);
-  color:white;
-}
-
-.stars{
-  position:absolute;
-  inset:0;
-  opacity:.24;
-  background-image:
-    radial-gradient(circle,rgba(255,255,255,.9) 1px,transparent 1.4px),
-    radial-gradient(circle,rgba(255,255,255,.45) 1px,transparent 1.4px);
-  background-position:18px 20px,58px 70px;
-  background-size:92px 92px,117px 117px;
-  pointer-events:none;
-}
-
-.map-heading{
-  position:relative;
-  z-index:2;
-  text-align:center;
-  font-size:11px;
-  font-weight:800;
-  letter-spacing:1.4px;
-  color:#c8dcec;
-  text-transform:uppercase;
-}
-
-.map-wrap{
-  position:relative;
-  z-index:2;
-  margin-top:7px;
-}
-
-#worldSvg{
-  display:block;
-  width:100%;
-  height:auto;
-  overflow:hidden;
-}
-
-/* Actual Natural Earth countries */
-
-.country{
-  fill:#2b5c7c;
-  stroke:#6b91a9;
-  stroke-width:.45;
-  stroke-linejoin:round;
-  vector-effect:non-scaling-stroke;
-  opacity:.95;
-}
-
-.country:hover{
-  fill:#326887;
-}
-
-.graticule{
-  fill:none;
-  stroke:rgba(183,211,229,.10);
-  stroke-width:.5;
-  vector-effect:non-scaling-stroke;
-}
-
-.route-glow{
-  fill:none;
-  stroke:rgba(231,188,87,.19);
-  stroke-width:8;
-  stroke-linecap:round;
-}
-
-.route{
-  fill:none;
-  stroke:#e7bc57;
-  stroke-width:2.6;
-  stroke-linecap:round;
-  stroke-dasharray:7 6;
-  filter:drop-shadow(0 0 4px rgba(231,188,87,.5));
-}
-
-.origin-ring{
-  fill:rgba(101,184,237,.18);
-  stroke:rgba(101,184,237,.5);
-  stroke-width:1.2;
-}
-
-.origin-dot{
-  fill:#65b8ed;
-  stroke:white;
-  stroke-width:2.5;
-}
-
-.kabah-ring{
-  fill:rgba(231,188,87,.20);
-  stroke:rgba(231,188,87,.55);
-  stroke-width:1.2;
-}
-
-.kabah-dot{
-  fill:#e7bc57;
-  stroke:white;
-  stroke-width:2.6;
-}
-
-.map-label{
-  fill:white;
-  font-size:11px;
-  font-weight:700;
-  paint-order:stroke;
-  stroke:#0b2942;
-  stroke-width:3px;
-  stroke-linejoin:round;
-}
-
-.map-label-sub{
-  fill:#d1dfe9;
-  font-size:8.7px;
-  paint-order:stroke;
-  stroke:#0b2942;
-  stroke-width:3px;
-}
-
-.kabah-symbol{
-  font-size:17px;
-}
-
-.map-loading{
-  fill:#bcd0df;
-  font-size:12px;
-  text-anchor:middle;
-}
-
-.journey-summary{
-  position:relative;
-  z-index:2;
-  display:grid;
-  grid-template-columns:1fr auto 1fr;
-  gap:12px;
-  align-items:center;
-  margin-top:4px;
-  padding:12px 14px;
-  border:1px solid rgba(255,255,255,.13);
-  border-radius:14px;
-  background:rgba(255,255,255,.065);
-}
-
-.summary-place{min-width:0}
-.summary-place.right{text-align:right}
-
-.summary-name{
-  overflow:hidden;
-  color:white;
-  font-size:14px;
-  font-weight:800;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-}
-
-.summary-country{
-  margin-top:3px;
-  color:#bcd0df;
-  font-size:11px;
-}
-
-.summary-arrow{
-  color:#e0b653;
-  font-size:20px;
-}
-
-
-/* DISTANCE */
-
-.distance-card{
-  margin-top:12px;
-  padding:19px 17px 17px;
-  border:1px solid #dbe6ef;
-  border-radius:17px;
-  background:white;
-  text-align:center;
-}
-
-.distance-label{
-  color:#718294;
-  font-size:11px;
-  font-weight:800;
-  letter-spacing:1.2px;
-  text-transform:uppercase;
-}
-
-.distance{
-  margin-top:4px;
-  color:#173f66;
-  font-size:clamp(32px,8vw,47px);
-  font-weight:800;
-  letter-spacing:-1px;
-}
-
-.distance-note{
-  margin-top:2px;
-  color:#8593a0;
-  font-size:12px;
-}
-
-.details{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:9px;
-  margin-top:13px;
-}
-
-.detail{
-  padding:12px;
-  border-radius:12px;
-  background:#f6f9fc;
-  border:1px solid #e2eaf1;
-}
-
-.detail-title{
-  color:#7b8a98;
-  font-size:10px;
-  font-weight:800;
-  letter-spacing:.8px;
-  text-transform:uppercase;
-}
-
-.detail-value{
-  margin-top:5px;
-  color:#214e75;
-  font-size:15px;
-  font-weight:800;
-}
-
-
-/* PERSPECTIVE */
-
-.perspective{
-  margin-top:12px;
-  border:1px solid #dbe5ee;
-  border-radius:15px;
-  overflow:hidden;
-  background:white;
-}
-
-.perspective-button{
-  width:100%;
-  padding:14px 16px;
-  background:white;
-  color:#235b86;
-  text-align:left;
-  font-size:13.5px;
-  font-weight:800;
-  display:flex;
-  justify-content:space-between;
-  gap:15px;
-}
-
-.perspective-button:hover{background:#f7fafc}
-
-.chevron{
-  transition:transform .25s ease;
-}
-
-.perspective.open .chevron{
-  transform:rotate(180deg);
-}
-
-.perspective-content{
-  display:none;
-  padding:0 14px 14px;
-}
-
-.perspective.open .perspective-content{
-  display:block;
-}
-
-.perspective-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:9px;
-}
-
-.perspective-item{
-  padding:12px;
-  border-radius:11px;
-  background:#f6f9fc;
-  border:1px solid #e4ebf1;
-}
-
-.perspective-icon{font-size:19px}
-
-.perspective-title{
-  margin-top:6px;
-  color:#214e75;
-  font-size:12px;
-  font-weight:800;
-}
-
-.perspective-text{
-  margin-top:4px;
-  color:#6d7d8b;
-  font-size:11.5px;
-  line-height:1.45;
-}
-
-.reflection{
-  margin-top:12px;
-  padding:14px 15px;
-  border-left:4px solid #d0a64f;
-  border-radius:9px;
-  background:#fffaf0;
-  color:#5e5136;
-  font-size:13px;
-  line-height:1.55;
-}
-
-.again{
-  display:block;
-  margin:13px auto 0;
-  padding:10px 16px;
-  border-radius:11px;
-  background:transparent;
-  color:#286a9b;
-  font-weight:700;
-  font-size:13px;
-}
-
-.again:hover{background:#edf5fb}
-
-.note{
-  margin-top:16px;
-  color:#8593a0;
-  text-align:center;
-  font-size:11.5px;
-  line-height:1.45;
-}
-
-
-@media(max-width:600px){
-
-  body{padding:5px}
-
-  .content{
-    padding:24px 15px 22px;
-  }
-
-  .search-row{
-    flex-direction:column;
-  }
-
-  .calculate{
-    width:100%;
-  }
-
-  .world-card{
-    padding:15px 9px 12px;
-  }
-
-  .journey-summary{
-    padding:11px;
-  }
-
-  .summary-name{
-    font-size:12.5px;
-  }
-
-  .summary-country{
-    font-size:10px;
-  }
-}
-
-@media(max-width:390px){
-
-  .details,
-  .perspective-grid{
-    grid-template-columns:1fr;
-  }
-}
-
-@media(prefers-reduced-motion:reduce){
-
-  *,
-  *::before,
-  *::after{
-    animation-duration:.01ms!important;
-    transition-duration:.01ms!important;
-  }
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How Far Are You From the Kaʿbah?</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --navy: #102a43;
+      --navy-deep: #071a2b;
+      --navy-mid: #173f5f;
+      --blue: #4da3ff;
+      --gold: #d6ad4c;
+      --gold-light: #f0d88a;
+      --cream: #fffdf8;
+      --text: #172b3a;
+      --muted: #667784;
+      --border: #dde5ea;
+      --soft: #f6f8f9;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      background: transparent;
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .feature {
+      width: 100%;
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .header h1 {
+      margin: 0 0 8px;
+      color: var(--navy);
+      font-size: clamp(24px, 5vw, 34px);
+      line-height: 1.15;
+    }
+
+    .header p {
+      max-width: 650px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .search-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 8px 24px rgba(16, 42, 67, 0.07);
+    }
+
+    .search-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    #cityInput {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid #cbd6dd;
+      border-radius: 11px;
+      padding: 13px 14px;
+      font-size: 16px;
+      color: var(--text);
+      outline: none;
+      background: white;
+    }
+
+    #cityInput:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(77, 163, 255, 0.13);
+    }
+
+    #calculateBtn {
+      border: 0;
+      border-radius: 11px;
+      padding: 13px 20px;
+      background: var(--navy);
+      color: white;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    #calculateBtn:hover {
+      background: #183e5e;
+    }
+
+    #calculateBtn:disabled {
+      opacity: 0.65;
+      cursor: wait;
+    }
+
+    .examples {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 13px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .example-label {
+      margin-right: 2px;
+    }
+
+    .example {
+      border: 1px solid var(--border);
+      background: var(--soft);
+      color: var(--navy);
+      padding: 6px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .example:hover {
+      border-color: #b9c8d2;
+      background: #eef3f6;
+    }
+
+    .message {
+      min-height: 18px;
+      margin-top: 10px;
+      text-align: center;
+      color: #a23b3b;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    /* DEFAULT PLACEHOLDER */
+
+    .placeholder {
+      margin-top: 16px;
+      min-height: 290px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 50% 35%, rgba(214, 173, 76, 0.08), transparent 32%),
+        linear-gradient(180deg, #fbfcfd 0%, #f5f8fa 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 35px 20px;
+    }
+
+    .placeholder-inner {
+      max-width: 390px;
+    }
+
+    .placeholder-icon {
+      width: 66px;
+      height: 66px;
+      margin: 0 auto 14px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: white;
+      border: 1px solid #e2e7ea;
+      box-shadow: 0 6px 18px rgba(16, 42, 67, 0.08);
+      font-size: 31px;
+    }
+
+    .placeholder-title {
+      margin: 0 0 7px;
+      color: var(--navy);
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .placeholder-text {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    /* RESULTS */
+
+    #results {
+      display: none;
+      margin-top: 16px;
+    }
+
+    .map-card {
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(255,255,255,.16) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 72% 22%, rgba(255,255,255,.13) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 38% 68%, rgba(255,255,255,.12) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 87% 63%, rgba(255,255,255,.14) 0 1px, transparent 1.5px),
+        linear-gradient(180deg, #0b2841, #071a2b);
+      background-size: 120px 120px, 170px 170px, 140px 140px, 190px 190px, auto;
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: 0 10px 26px rgba(7, 26, 43, 0.18);
+    }
+
+    .map-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 720 / 310;
+      min-height: 235px;
+    }
+
+    #worldMap {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .map-loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,.82);
+      font-size: 13px;
+      pointer-events: none;
+    }
+
+    .graticule {
+      stroke: rgba(255,255,255,.075);
+      stroke-width: .55;
+      fill: none;
+    }
+
+    .country {
+      fill: #2b5c7c;
+      stroke: #6b91a9;
+      stroke-width: .45;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .route {
+      fill: none;
+      stroke: var(--gold);
+      stroke-width: 2.4;
+      stroke-linecap: round;
+      stroke-dasharray: 7 6;
+      opacity: .95;
+      filter: drop-shadow(0 0 3px rgba(214,173,76,.35));
+    }
+
+    .city-dot {
+      fill: var(--blue);
+      stroke: white;
+      stroke-width: 2;
+    }
+
+    .makkah-dot {
+      fill: var(--gold);
+      stroke: #fff5cf;
+      stroke-width: 2;
+    }
+
+    .map-label {
+      fill: white;
+      font-size: 11px;
+      font-weight: 700;
+      paint-order: stroke;
+      stroke: #071a2b;
+      stroke-width: 3px;
+      stroke-linejoin: round;
+    }
+
+    .map-sub-label {
+      fill: rgba(255,255,255,.76);
+      font-size: 8.5px;
+      paint-order: stroke;
+      stroke: #071a2b;
+      stroke-width: 2.5px;
+      stroke-linejoin: round;
+    }
+
+    .kabah-symbol {
+      font-size: 15px;
+    }
+
+    .summary-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 10px;
+      align-items: center;
+      padding: 17px 4px 3px;
+      color: white;
+    }
+
+    .summary-location {
+      text-align: center;
+      min-width: 0;
+    }
+
+    .summary-location strong {
+      display: block;
+      font-size: 14px;
+      overflow-wrap: anywhere;
+    }
+
+    .summary-location span {
+      display: block;
+      margin-top: 3px;
+      color: rgba(255,255,255,.68);
+      font-size: 11px;
+    }
+
+    .summary-arrow {
+      color: var(--gold-light);
+      font-size: 21px;
+    }
+
+    .distance-card {
+      margin-top: 14px;
+      padding: 21px 16px;
+      text-align: center;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 17px;
+      box-shadow: 0 7px 20px rgba(16, 42, 67, 0.06);
+    }
+
+    .result-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+
+    .distance-value {
+      margin-top: 6px;
+      color: var(--navy);
+      font-size: clamp(34px, 8vw, 49px);
+      line-height: 1;
+      font-weight: 800;
+    }
+
+    .distance-unit {
+      font-size: .48em;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 11px;
+      margin-top: 11px;
+    }
+
+    .detail-card {
+      padding: 15px 12px;
+      text-align: center;
+      background: var(--soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+    }
+
+    .detail-card strong {
+      display: block;
+      margin-top: 5px;
+      color: var(--navy);
+      font-size: 18px;
+    }
+
+    .perspective {
+      margin-top: 12px;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      overflow: hidden;
+      background: white;
+    }
+
+    .perspective-button {
+      width: 100%;
+      border: 0;
+      background: white;
+      color: var(--navy);
+      padding: 15px 17px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      text-align: left;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .perspective-button:hover {
+      background: #fafcfd;
+    }
+
+    .chevron {
+      transition: transform .2s ease;
+    }
+
+    .perspective.open .chevron {
+      transform: rotate(180deg);
+    }
+
+    .perspective-content {
+      display: none;
+      padding: 0 17px 17px;
+    }
+
+    .perspective.open .perspective-content {
+      display: block;
+    }
+
+    .perspective-item {
+      padding: 13px 0;
+      border-top: 1px solid #edf1f3;
+    }
+
+    .perspective-item:first-child {
+      border-top: 0;
+    }
+
+    .perspective-item strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--navy);
+      font-size: 14px;
+    }
+
+    .perspective-item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .reflection {
+      margin-top: 13px;
+      padding: 17px;
+      text-align: center;
+      border-radius: 15px;
+      background: #fbf8ee;
+      border: 1px solid #eee3c5;
+      color: #5f5232;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .try-again-wrap {
+      text-align: center;
+      margin-top: 14px;
+    }
+
+    #tryAgainBtn {
+      border: 1px solid #c8d4dc;
+      border-radius: 10px;
+      padding: 10px 16px;
+      background: white;
+      color: var(--navy);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    #tryAgainBtn:hover {
+      background: var(--soft);
+    }
+
+    .note {
+      margin: 13px auto 0;
+      max-width: 650px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 12px;
+      }
+
+      .search-card {
+        padding: 14px;
+      }
+
+      .search-row {
+        flex-direction: column;
+      }
+
+      #calculateBtn {
+        width: 100%;
+      }
+
+      .placeholder {
+        min-height: 250px;
+      }
+
+      .map-card {
+        padding: 9px;
+      }
+
+      .map-wrap {
+        min-height: 190px;
+      }
+
+      .summary-row {
+        gap: 6px;
+      }
+
+      .summary-location strong {
+        font-size: 12px;
+      }
+
+      .detail-grid {
+        gap: 8px;
+      }
+
+      .detail-card strong {
+        font-size: 16px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition: none !important;
+        animation: none !important;
+      }
+    }
+  </style>
 </head>
-
 
 <body>
 
-<main class="aks-kabah">
+  <main class="feature">
+
+    <div class="header">
+      <h1>How Far Are You From the Kaʿbah?</h1>
+      <p>
+        Discover the approximate distance and direction from your city
+        to the Kaʿbah in Makkah.
+      </p>
+    </div>
+
+    <section class="search-card">
+
+      <div class="search-row">
+        <input
+          id="cityInput"
+          type="text"
+          placeholder="Enter a city..."
+          autocomplete="off"
+          aria-label="Enter a city"
+        />
+
+        <button id="calculateBtn" type="button">
+          Calculate Distance
+        </button>
+      </div>
+
+      <div class="examples">
+        <span class="example-label">Try:</span>
+        <button class="example" data-city="Toronto">Toronto</button>
+        <button class="example" data-city="London">London</button>
+        <button class="example" data-city="Tokyo">Tokyo</button>
+        <button class="example" data-city="Cape Town">Cape Town</button>
+        <button class="example" data-city="Sydney">Sydney</button>
+      </div>
+
+      <div id="message" class="message" aria-live="polite"></div>
+
+    </section>
+
+    <!-- Default placeholder -->
+    <section id="placeholder" class="placeholder">
+      <div class="placeholder-inner">
+        <div class="placeholder-icon" aria-hidden="true">🕋</div>
+
+        <h2 class="placeholder-title">
+          Enter a city to begin
+        </h2>
+
+        <p class="placeholder-text">
+          Discover its approximate distance and direction to the Kaʿbah.
+        </p>
+      </div>
+    </section>
+
+    <!-- Results -->
+    <section id="results">
 
-<div class="top-accent"></div>
+      <div class="map-card">
+
+        <div class="map-wrap">
 
-<div class="content">
+          <svg
+            id="worldMap"
+            viewBox="0 0 720 310"
+            role="img"
+            aria-label="World map showing the selected city and Makkah"
+          >
+            <g id="graticuleLayer"></g>
+            <g id="countriesLayer"></g>
+            <g id="routeLayer"></g>
+            <g id="markerLayer"></g>
+          </svg>
 
-<div class="icon" aria-hidden="true">🕋</div>
+          <div id="mapLoading" class="map-loading">
+            Loading map…
+          </div>
 
-<h1>How Far Are You From the Kaʿbah?</h1>
+        </div>
 
-<p class="subtitle">
-Discover the approximate distance and direction from your city
-to the Kaʿbah in Makkah.
-</p>
+        <div class="summary-row">
 
+          <div class="summary-location">
+            <strong id="summaryCity">—</strong>
+            <span id="summaryCountry">—</span>
+          </div>
 
-<div class="search-area">
+          <div class="summary-arrow">→</div>
 
-<div class="search-row">
+          <div class="summary-location">
+            <strong>Kaʿbah</strong>
+            <span>Makkah, Saudi Arabia</span>
+          </div>
 
-<div class="input-wrap">
-<input
-id="cityInput"
-type="text"
-placeholder="Enter a city, e.g. Toronto"
-autocomplete="off"
-aria-label="Enter a city">
-</div>
+        </div>
 
-<button class="calculate" id="calculateButton">
-Calculate Distance
-</button>
+      </div>
 
-</div>
+      <div class="distance-card">
 
+        <div class="result-label">
+          Approximate Distance
+        </div>
 
-<div class="examples">
-Or explore:
-<button class="example" data-city="Toronto">Toronto</button>
-<button class="example" data-city="London">London</button>
-<button class="example" data-city="Tokyo">Tokyo</button>
-<button class="example" data-city="Cape Town">Cape Town</button>
-<button class="example" data-city="Sydney">Sydney</button>
-</div>
+        <div class="distance-value">
+          <span id="distanceNumber">—</span>
+          <span class="distance-unit">km</span>
+        </div>
 
-<div class="status" id="status" aria-live="polite"></div>
+        <div class="detail-grid">
 
-</div>
+          <div class="detail-card">
+            <div class="result-label">Direction</div>
+            <strong id="directionText">—</strong>
+          </div>
 
+          <div class="detail-card">
+            <div class="result-label">Initial Bearing</div>
+            <strong id="bearingText">—</strong>
+          </div>
 
-<section class="result" id="result">
+        </div>
 
-<div class="world-card">
+      </div>
 
-<div class="stars"></div>
+      <div id="perspective" class="perspective">
 
-<div class="map-heading">
-Your City → The Kaʿbah
-</div>
+        <button
+          id="perspectiveButton"
+          class="perspective-button"
+          type="button"
+          aria-expanded="false"
+        >
+          <span>🌍 Put this distance into perspective</span>
+          <span class="chevron">⌄</span>
+        </button>
 
+        <div class="perspective-content">
 
-<div class="map-wrap">
+          <div class="perspective-item">
+            <strong>Compared with Earth’s circumference</strong>
+            <p id="earthComparison"></p>
+          </div>
 
-<svg
-id="worldSvg"
-viewBox="0 0 720 310"
-role="img"
-aria-label="World map showing the selected city and Makkah">
+          <div class="perspective-item">
+            <strong>At a conceptual cruising speed of 900 km/h</strong>
+            <p id="flightComparison"></p>
+          </div>
 
-<!-- subtle geographic grid -->
-<g id="graticuleLayer"></g>
+        </div>
 
-<!-- real Natural Earth geography -->
-<g id="mapLayer">
-<text
-id="mapLoading"
-class="map-loading"
-x="360"
-y="150">
-Loading world map…
-</text>
-</g>
+      </div>
 
-<!-- route -->
-<path id="routeGlow" class="route-glow"></path>
-<path id="routePath" class="route"></path>
+      <div id="reflection" class="reflection"></div>
 
-<!-- selected city -->
-<circle id="originRing" class="origin-ring" r="11"></circle>
-<circle id="originDot" class="origin-dot" r="5.5"></circle>
+      <div class="try-again-wrap">
+        <button id="tryAgainBtn" type="button">
+          Try Another City
+        </button>
+      </div>
 
-<text id="originMapLabel" class="map-label"></text>
-<text id="originMapCountry" class="map-label-sub"></text>
+      <p class="note">
+        Distances and directions are approximate and are calculated using
+        representative coordinates for each city and the Kaʿbah in Makkah.
+      </p>
 
-<!-- Makkah -->
-<circle id="kabahRing" class="kabah-ring" r="13"></circle>
-<circle id="kabahDot" class="kabah-dot" r="6"></circle>
+    </section>
 
-<text id="kabahSymbol" class="kabah-symbol">🕋</text>
-<text id="makkahLabel" class="map-label">Makkah</text>
-<text id="makkahCountry" class="map-label-sub">Saudi Arabia</text>
+  </main>
 
-</svg>
 
-</div>
+  <script>
 
+    const KABAH = {
+      lat: 21.4225,
+      lon: 39.8262
+    };
 
-<div class="journey-summary">
+    const MAP_WIDTH = 720;
+    const MAP_HEIGHT = 310;
 
-<div class="summary-place">
-<div class="summary-name" id="summaryCity">—</div>
-<div class="summary-country" id="summaryCountry">—</div>
-</div>
+    const EARTH_RADIUS_KM = 6371.0088;
+    const EARTH_CIRCUMFERENCE_KM = 40075;
+    const CONCEPTUAL_SPEED_KMH = 900;
 
-<div class="summary-arrow">→</div>
+    const WORLD_DATA_URL =
+      "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson";
 
-<div class="summary-place right">
-<div class="summary-name">Kaʿbah</div>
-<div class="summary-country">Makkah</div>
-</div>
 
-</div>
+    const cityInput = document.getElementById("cityInput");
+    const calculateBtn = document.getElementById("calculateBtn");
+    const message = document.getElementById("message");
 
-</div>
+    const placeholder = document.getElementById("placeholder");
+    const results = document.getElementById("results");
 
+    const summaryCity = document.getElementById("summaryCity");
+    const summaryCountry = document.getElementById("summaryCountry");
 
-<div class="distance-card">
+    const distanceNumber = document.getElementById("distanceNumber");
+    const directionText = document.getElementById("directionText");
+    const bearingText = document.getElementById("bearingText");
 
-<div class="distance-label">
-Approximate Distance
-</div>
+    const earthComparison = document.getElementById("earthComparison");
+    const flightComparison = document.getElementById("flightComparison");
+    const reflection = document.getElementById("reflection");
 
-<div class="distance">
-<span id="distanceNumber">—</span> km
-</div>
+    const perspective = document.getElementById("perspective");
+    const perspectiveButton = document.getElementById("perspectiveButton");
+    const tryAgainBtn = document.getElementById("tryAgainBtn");
 
-<div class="distance-note">
-Great-circle distance across the Earth
-</div>
+    const graticuleLayer = document.getElementById("graticuleLayer");
+    const countriesLayer = document.getElementById("countriesLayer");
+    const routeLayer = document.getElementById("routeLayer");
+    const markerLayer = document.getElementById("markerLayer");
+    const mapLoading = document.getElementById("mapLoading");
 
 
-<div class="details">
+    let worldDataLoaded = false;
 
-<div class="detail">
-<div class="detail-title">Direction</div>
-<div class="detail-value" id="directionValue">—</div>
-</div>
 
-<div class="detail">
-<div class="detail-title">Initial Bearing</div>
-<div class="detail-value" id="bearingValue">—</div>
-</div>
-
-</div>
-
-</div>
-
-
-<div class="perspective" id="perspective">
-
-<button
-class="perspective-button"
-id="perspectiveButton"
-aria-expanded="false">
-
-<span>🌍 Put this distance into perspective</span>
-<span class="chevron">⌄</span>
-
-</button>
-
-
-<div class="perspective-content">
-
-<div class="perspective-grid">
-
-<div class="perspective-item">
-
-<div class="perspective-icon">🌎</div>
-
-<div class="perspective-title">
-Around the Earth
-</div>
-
-<div
-class="perspective-text"
-id="earthPerspective">
-—
-</div>
-
-</div>
-
-
-<div class="perspective-item">
-
-<div class="perspective-icon">✈️</div>
-
-<div class="perspective-title">
-At Cruising Speed
-</div>
-
-<div
-class="perspective-text"
-id="flightPerspective">
-—
-</div>
-
-</div>
-
-</div>
-
-
-<div class="reflection" id="reflectionText">
-Wherever Muslims are in the world, they turn toward the
-Kaʿbah in Makkah during Ṣalāh.
-</div>
-
-</div>
-
-</div>
-
-
-<button class="again" id="againButton">
-Try Another City
-</button>
-
-</section>
-
-
-<p class="note">
-Distances and directions are approximate and are calculated
-from the selected city's coordinates to the Kaʿbah in Makkah.
-</p>
-
-</div>
-
-</main>
-
-
-<script>
-
-/*
-  AKS ILM
-  HOW FAR ARE YOU FROM THE KAʿBAH?
-
-  Geographic map:
-  Natural Earth 1:110m world countries.
-
-  Natural Earth data is public domain.
-*/
-
-
-const KABAH = {
-  lat:21.4225,
-  lon:39.8262
-};
-
-const EARTH_CIRCUMFERENCE = 40075;
-const COMPARISON_SPEED = 900;
-
-
-/*
-  Natural Earth GeoJSON.
-
-  We use the lightweight 1:110m world dataset because this is
-  a compact locator map rather than a zoomable atlas.
-*/
-
-const WORLD_DATA_URL =
-"https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson";
-
-
-const cityInput =
-document.getElementById("cityInput");
-
-const calculateButton =
-document.getElementById("calculateButton");
-
-const result =
-document.getElementById("result");
-
-const status =
-document.getElementById("status");
-
-const mapLayer =
-document.getElementById("mapLayer");
-
-const graticuleLayer =
-document.getElementById("graticuleLayer");
-
-const distanceNumber =
-document.getElementById("distanceNumber");
-
-const directionValue =
-document.getElementById("directionValue");
-
-const bearingValue =
-document.getElementById("bearingValue");
-
-const summaryCity =
-document.getElementById("summaryCity");
-
-const summaryCountry =
-document.getElementById("summaryCountry");
-
-const earthPerspective =
-document.getElementById("earthPerspective");
-
-const flightPerspective =
-document.getElementById("flightPerspective");
-
-const reflectionText =
-document.getElementById("reflectionText");
-
-const perspective =
-document.getElementById("perspective");
-
-const perspectiveButton =
-document.getElementById("perspectiveButton");
-
-const againButton =
-document.getElementById("againButton");
-
-const originRing =
-document.getElementById("originRing");
-
-const originDot =
-document.getElementById("originDot");
-
-const originMapLabel =
-document.getElementById("originMapLabel");
-
-const originMapCountry =
-document.getElementById("originMapCountry");
-
-const routePath =
-document.getElementById("routePath");
-
-const routeGlow =
-document.getElementById("routeGlow");
-
-const kabahRing =
-document.getElementById("kabahRing");
-
-const kabahDot =
-document.getElementById("kabahDot");
-
-const kabahSymbol =
-document.getElementById("kabahSymbol");
-
-const makkahLabel =
-document.getElementById("makkahLabel");
-
-const makkahCountry =
-document.getElementById("makkahCountry");
-
-
-const SVG_NS =
-"http://www.w3.org/2000/svg";
-
-
-function toRadians(degrees){
-  return degrees*Math.PI/180;
-}
-
-
-function toDegrees(radians){
-  return radians*180/Math.PI;
-}
-
-
-/*
-  Equirectangular projection.
-
-  The Natural Earth geometry AND both markers use this
-  exact same projection.
-*/
-
-function project(lat,lon){
-
-  const width=720;
-  const height=310;
-
-  const x=
-  ((lon+180)/360)*width;
-
-  const y=
-  ((90-lat)/180)*height;
-
-  return {x,y};
-}
-
-
-/*
-  Turn a GeoJSON coordinate ring into an SVG path.
-*/
-
-function ringToPath(ring){
-
-  if(!ring || !ring.length){
-    return "";
-  }
-
-  let path="";
-
-  ring.forEach((coordinate,index)=>{
-
-    const lon=coordinate[0];
-    const lat=coordinate[1];
-
-    const point=
-    project(lat,lon);
-
-    path +=
-    (index===0 ? "M " : "L ") +
-    point.x.toFixed(2) +
-    " " +
-    point.y.toFixed(2) +
-    " ";
-
-  });
-
-  path+="Z ";
-
-  return path;
-}
-
-
-/*
-  GeoJSON polygons can be Polygon or MultiPolygon.
-*/
-
-function geometryToPath(geometry){
-
-  let path="";
-
-  if(!geometry){
-    return path;
-  }
-
-
-  if(geometry.type==="Polygon"){
-
-    geometry.coordinates.forEach(ring=>{
-      path+=ringToPath(ring);
-    });
-
-  }
-
-
-  else if(geometry.type==="MultiPolygon"){
-
-    geometry.coordinates.forEach(polygon=>{
-
-      polygon.forEach(ring=>{
-        path+=ringToPath(ring);
-      });
-
-    });
-
-  }
-
-
-  return path;
-}
-
-
-/*
-  Draw subtle latitude/longitude lines.
-*/
-
-function drawGraticule(){
-
-  for(let lon=-150;lon<=150;lon+=30){
-
-    const top=project(80,lon);
-    const bottom=project(-60,lon);
-
-    const line=
-    document.createElementNS(
-      SVG_NS,
-      "line"
-    );
-
-    line.setAttribute("x1",top.x);
-    line.setAttribute("y1",top.y);
-    line.setAttribute("x2",bottom.x);
-    line.setAttribute("y2",bottom.y);
-    line.setAttribute("class","graticule");
-
-    graticuleLayer.appendChild(line);
-
-  }
-
-
-  for(let lat=-60;lat<=60;lat+=30){
-
-    const left=project(lat,-180);
-    const right=project(lat,180);
-
-    const line=
-    document.createElementNS(
-      SVG_NS,
-      "line"
-    );
-
-    line.setAttribute("x1",left.x);
-    line.setAttribute("y1",left.y);
-    line.setAttribute("x2",right.x);
-    line.setAttribute("y2",right.y);
-    line.setAttribute("class","graticule");
-
-    graticuleLayer.appendChild(line);
-
-  }
-
-}
-
-
-/*
-  Load and draw actual Natural Earth geography.
-*/
-
-async function loadWorldMap(){
-
-  drawGraticule();
-
-  try{
-
-    const response=
-    await fetch(WORLD_DATA_URL);
-
-    if(!response.ok){
-      throw new Error("World map data failed to load.");
+    function toRadians(degrees) {
+      return degrees * Math.PI / 180;
     }
 
 
-    const geojson=
-    await response.json();
+    function toDegrees(radians) {
+      return radians * 180 / Math.PI;
+    }
 
 
-    mapLayer.innerHTML="";
+    function haversineDistance(lat1, lon1, lat2, lon2) {
+
+      const φ1 = toRadians(lat1);
+      const φ2 = toRadians(lat2);
+
+      const Δφ = toRadians(lat2 - lat1);
+      const Δλ = toRadians(lon2 - lon1);
+
+      const a =
+        Math.sin(Δφ / 2) ** 2 +
+        Math.cos(φ1) *
+        Math.cos(φ2) *
+        Math.sin(Δλ / 2) ** 2;
+
+      const c =
+        2 *
+        Math.atan2(
+          Math.sqrt(a),
+          Math.sqrt(1 - a)
+        );
+
+      return EARTH_RADIUS_KM * c;
+    }
 
 
-    geojson.features.forEach(feature=>{
+    function initialBearing(lat1, lon1, lat2, lon2) {
+
+      const φ1 = toRadians(lat1);
+      const φ2 = toRadians(lat2);
+      const λ1 = toRadians(lon1);
+      const λ2 = toRadians(lon2);
+
+      const y =
+        Math.sin(λ2 - λ1) *
+        Math.cos(φ2);
+
+      const x =
+        Math.cos(φ1) *
+        Math.sin(φ2) -
+        Math.sin(φ1) *
+        Math.cos(φ2) *
+        Math.cos(λ2 - λ1);
+
+      const θ = Math.atan2(y, x);
+
+      return (toDegrees(θ) + 360) % 360;
+    }
+
+
+    function compassDirection(bearing) {
+
+      const directions = [
+        "North",
+        "Northeast",
+        "East",
+        "Southeast",
+        "South",
+        "Southwest",
+        "West",
+        "Northwest"
+      ];
+
+      const index =
+        Math.round(bearing / 45) % 8;
+
+      return directions[index];
+    }
+
+
+    function project(lon, lat) {
+
+      return {
+        x: ((lon + 180) / 360) * MAP_WIDTH,
+        y: ((90 - lat) / 180) * MAP_HEIGHT
+      };
+    }
+
+
+    function createSVGElement(name, attributes = {}) {
+
+      const element =
+        document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          name
+        );
+
+      Object.entries(attributes).forEach(
+        ([key, value]) => {
+          element.setAttribute(key, value);
+        }
+      );
+
+      return element;
+    }
+
+
+    function drawGraticule() {
+
+      graticuleLayer.innerHTML = "";
+
+      for (let lon = -150; lon <= 150; lon += 30) {
+
+        const top = project(lon, 90);
+        const bottom = project(lon, -90);
+
+        const line = createSVGElement("line", {
+          x1: top.x,
+          y1: top.y,
+          x2: bottom.x,
+          y2: bottom.y,
+          class: "graticule"
+        });
+
+        graticuleLayer.appendChild(line);
+      }
+
+
+      for (let lat = -60; lat <= 60; lat += 30) {
+
+        const left = project(-180, lat);
+        const right = project(180, lat);
+
+        const line = createSVGElement("line", {
+          x1: left.x,
+          y1: left.y,
+          x2: right.x,
+          y2: right.y,
+          class: "graticule"
+        });
+
+        graticuleLayer.appendChild(line);
+      }
+    }
+
+
+    function ringToPath(ring) {
+
+      if (!ring || !ring.length) {
+        return "";
+      }
+
+      return ring.map((coord, index) => {
+
+        const point =
+          project(coord[0], coord[1]);
+
+        return (
+          (index === 0 ? "M" : "L") +
+          point.x.toFixed(2) +
+          " " +
+          point.y.toFixed(2)
+        );
+
+      }).join(" ") + " Z";
+    }
+
+
+    function geometryToPath(geometry) {
+
+      if (!geometry) {
+        return "";
+      }
+
+      if (geometry.type === "Polygon") {
+
+        return geometry.coordinates
+          .map(ringToPath)
+          .join(" ");
+      }
+
+      if (geometry.type === "MultiPolygon") {
+
+        return geometry.coordinates
+          .flatMap(polygon =>
+            polygon.map(ringToPath)
+          )
+          .join(" ");
+      }
+
+      return "";
+    }
+
+
+    async function loadWorldMap() {
+
+      drawGraticule();
+
+      try {
+
+        const response =
+          await fetch(WORLD_DATA_URL);
+
+        if (!response.ok) {
+          throw new Error("Map data could not be loaded.");
+        }
+
+        const data =
+          await response.json();
+
+        countriesLayer.innerHTML = "";
+
+        data.features.forEach(feature => {
+
+          const properties =
+            feature.properties || {};
+
+          const name =
+            properties.ADMIN ||
+            properties.NAME ||
+            "";
+
+          if (
+            name.toLowerCase() === "antarctica"
+          ) {
+            return;
+          }
+
+          const d =
+            geometryToPath(feature.geometry);
+
+          if (!d) {
+            return;
+          }
+
+          const path =
+            createSVGElement("path", {
+              d,
+              class: "country"
+            });
+
+          countriesLayer.appendChild(path);
+        });
+
+        worldDataLoaded = true;
+        mapLoading.style.display = "none";
+
+      } catch (error) {
+
+        worldDataLoaded = false;
+
+        mapLoading.textContent =
+          "Map could not be loaded.";
+      }
+    }
+
+
+    function addTextLabel(
+      x,
+      y,
+      text,
+      className,
+      anchor = "start"
+    ) {
+
+      const label =
+        createSVGElement("text", {
+          x,
+          y,
+          class: className,
+          "text-anchor": anchor
+        });
+
+      label.textContent = text;
+
+      markerLayer.appendChild(label);
+
+      return label;
+    }
+
+
+    function drawMapMarkers(
+      cityName,
+      countryName,
+      lat,
+      lon
+    ) {
+
+      routeLayer.innerHTML = "";
+      markerLayer.innerHTML = "";
+
+      const city =
+        project(lon, lat);
+
+      const makkah =
+        project(KABAH.lon, KABAH.lat);
+
 
       /*
-        Antarctica is intentionally omitted from this compact
-        locator map to give the inhabited world more vertical room.
+        The route is a visual connection between
+        the selected city and Makkah.
+
+        The numerical distance itself is calculated
+        separately using the great-circle Haversine
+        formula.
       */
 
-      const name=
-      feature.properties?.ADMIN ||
-      feature.properties?.NAME ||
-      "";
+      let cityX = city.x;
+      let makkahX = makkah.x;
 
-      if(name==="Antarctica"){
+      let difference =
+        makkahX - cityX;
+
+      if (Math.abs(difference) > MAP_WIDTH / 2) {
+
+        if (difference > 0) {
+          cityX += MAP_WIDTH;
+        } else {
+          makkahX += MAP_WIDTH;
+        }
+      }
+
+
+      const midX =
+        (cityX + makkahX) / 2;
+
+      const midY =
+        Math.min(city.y, makkah.y) -
+        Math.max(
+          28,
+          Math.abs(cityX - makkahX) * 0.09
+        );
+
+
+      const route =
+        createSVGElement("path", {
+          d:
+            `M ${cityX} ${city.y}
+             Q ${midX} ${midY}
+             ${makkahX} ${makkah.y}`,
+          class: "route"
+        });
+
+      routeLayer.appendChild(route);
+
+
+      /*
+        If the route crosses the date line,
+        draw a translated copy so it remains
+        visually continuous on the map.
+      */
+
+      if (cityX > MAP_WIDTH || makkahX > MAP_WIDTH) {
+
+        const copy =
+          route.cloneNode();
+
+        copy.setAttribute(
+          "transform",
+          `translate(-${MAP_WIDTH},0)`
+        );
+
+        routeLayer.appendChild(copy);
+      }
+
+      if (cityX < 0 || makkahX < 0) {
+
+        const copy =
+          route.cloneNode();
+
+        copy.setAttribute(
+          "transform",
+          `translate(${MAP_WIDTH},0)`
+        );
+
+        routeLayer.appendChild(copy);
+      }
+
+
+      const cityDot =
+        createSVGElement("circle", {
+          cx: city.x,
+          cy: city.y,
+          r: 5.5,
+          class: "city-dot"
+        });
+
+      markerLayer.appendChild(cityDot);
+
+
+      const cityAnchor =
+        city.x > MAP_WIDTH * 0.76
+          ? "end"
+          : "start";
+
+      const cityOffset =
+        cityAnchor === "end"
+          ? -9
+          : 9;
+
+      addTextLabel(
+        city.x + cityOffset,
+        city.y - 7,
+        cityName,
+        "map-label",
+        cityAnchor
+      );
+
+
+      if (countryName) {
+
+        addTextLabel(
+          city.x + cityOffset,
+          city.y + 6,
+          countryName,
+          "map-sub-label",
+          cityAnchor
+        );
+      }
+
+
+      const makkahDot =
+        createSVGElement("circle", {
+          cx: makkah.x,
+          cy: makkah.y,
+          r: 5.8,
+          class: "makkah-dot"
+        });
+
+      markerLayer.appendChild(makkahDot);
+
+
+      addTextLabel(
+        makkah.x + 9,
+        makkah.y - 15,
+        "🕋",
+        "kabah-symbol",
+        "start"
+      );
+
+      addTextLabel(
+        makkah.x + 9,
+        makkah.y - 2,
+        "Makkah",
+        "map-label",
+        "start"
+      );
+
+      addTextLabel(
+        makkah.x + 9,
+        makkah.y + 11,
+        "Saudi Arabia",
+        "map-sub-label",
+        "start"
+      );
+    }
+
+
+    async function geocodeCity(city) {
+
+      const url =
+        "https://nominatim.openstreetmap.org/search" +
+        "?format=jsonv2" +
+        "&limit=1" +
+        "&addressdetails=1" +
+        "&q=" +
+        encodeURIComponent(city);
+
+      const response =
+        await fetch(url, {
+          headers: {
+            "Accept": "application/json"
+          }
+        });
+
+      if (!response.ok) {
+        throw new Error(
+          "The city lookup could not be completed."
+        );
+      }
+
+      const data =
+        await response.json();
+
+      if (!data.length) {
+        throw new Error(
+          "City not found. Try another city or include the country."
+        );
+      }
+
+      const result = data[0];
+      const address = result.address || {};
+
+      const cityName =
+        address.city ||
+        address.town ||
+        address.village ||
+        address.municipality ||
+        address.county ||
+        city;
+
+      const countryName =
+        address.country || "";
+
+      return {
+        lat: parseFloat(result.lat),
+        lon: parseFloat(result.lon),
+        city: cityName,
+        country: countryName
+      };
+    }
+
+
+    function setLoading(isLoading) {
+
+      calculateBtn.disabled = isLoading;
+
+      calculateBtn.textContent =
+        isLoading
+          ? "Calculating..."
+          : "Calculate Distance";
+    }
+
+
+    function resetPerspective() {
+
+      perspective.classList.remove("open");
+
+      perspectiveButton.setAttribute(
+        "aria-expanded",
+        "false"
+      );
+    }
+
+
+    async function calculate(cityOverride = null) {
+
+      const city =
+        (cityOverride || cityInput.value).trim();
+
+      if (!city) {
+
+        message.textContent =
+          "Enter a city to begin.";
+
+        cityInput.focus();
         return;
       }
 
 
-      const pathData=
-      geometryToPath(
-        feature.geometry
-      );
+      message.textContent = "";
+      setLoading(true);
+      resetPerspective();
 
 
-      if(!pathData){
-        return;
-      }
+      try {
 
+        const location =
+          await geocodeCity(city);
 
-      const path=
-      document.createElementNS(
-        SVG_NS,
-        "path"
-      );
+        const distance =
+          haversineDistance(
+            location.lat,
+            location.lon,
+            KABAH.lat,
+            KABAH.lon
+          );
 
+        const bearing =
+          initialBearing(
+            location.lat,
+            location.lon,
+            KABAH.lat,
+            KABAH.lon
+          );
 
-      path.setAttribute(
-        "d",
-        pathData
-      );
+        const direction =
+          compassDirection(bearing);
 
-      path.setAttribute(
-        "class",
-        "country"
-      );
 
-      path.setAttribute(
-        "fill-rule",
-        "evenodd"
-      );
+        const roundedDistance =
+          Math.round(distance);
 
+        const roundedBearing =
+          Math.round(bearing);
 
-      mapLayer.appendChild(
-        path
-      );
 
-    });
+        summaryCity.textContent =
+          location.city;
 
-  }
+        summaryCountry.textContent =
+          location.country || "Selected location";
 
-  catch(error){
 
-    console.error(error);
+        distanceNumber.textContent =
+          roundedDistance.toLocaleString();
 
-    mapLayer.innerHTML="";
 
+        directionText.textContent =
+          direction;
 
-    const message=
-    document.createElementNS(
-      SVG_NS,
-      "text"
-    );
+        bearingText.textContent =
+          roundedBearing + "°";
 
 
-    message.setAttribute(
-      "x",
-      "360"
-    );
+        const earthPercentage =
+          (distance / EARTH_CIRCUMFERENCE_KM) * 100;
 
-    message.setAttribute(
-      "y",
-      "150"
-    );
+        earthComparison.textContent =
+          `This distance is about ${earthPercentage.toFixed(1)}% of the distance around Earth at the equator.`;
 
-    message.setAttribute(
-      "class",
-      "map-loading"
-    );
 
+        const conceptualHours =
+          distance / CONCEPTUAL_SPEED_KMH;
 
-    message.textContent=
-    "World map unavailable";
+        flightComparison.textContent =
+          `At 900 km/h, covering the same distance continuously would take roughly ${conceptualHours.toFixed(1)} hours.`;
 
 
-    mapLayer.appendChild(
-      message
-    );
+        reflection.textContent =
+          `From ${location.city}, the Kaʿbah is approximately ${roundedDistance.toLocaleString()} km away. Wherever Muslims are in the world, they turn toward the Kaʿbah in Makkah during Ṣalāh.`;
 
-  }
 
-}
+        drawMapMarkers(
+          location.city,
+          location.country,
+          location.lat,
+          location.lon
+        );
 
 
-/*
-  Distance using the Haversine formula.
-*/
+        placeholder.style.display = "none";
+        results.style.display = "block";
 
-function calculateDistance(
-lat1,
-lon1,
-lat2,
-lon2
-){
 
-  const earthRadius=
-  6371.0088;
+        /*
+          If the world map is still loading,
+          keep the loading message visible until
+          the geographic data finishes loading.
+        */
 
-  const phi1=
-  toRadians(lat1);
+        if (worldDataLoaded) {
+          mapLoading.style.display = "none";
+        }
 
-  const phi2=
-  toRadians(lat2);
 
-  const deltaPhi=
-  toRadians(lat2-lat1);
+      } catch (error) {
 
-  const deltaLambda=
-  toRadians(lon2-lon1);
+        message.textContent =
+          error.message ||
+          "Something went wrong. Please try another city.";
 
+      } finally {
 
-  const a=
-  Math.sin(deltaPhi/2)**2+
-  Math.cos(phi1)*
-  Math.cos(phi2)*
-  Math.sin(deltaLambda/2)**2;
-
-
-  const c=
-  2*
-  Math.atan2(
-    Math.sqrt(a),
-    Math.sqrt(1-a)
-  );
-
-
-  return earthRadius*c;
-}
-
-
-/*
-  Initial great-circle bearing toward the Kaʿbah.
-*/
-
-function calculateBearing(
-lat1,
-lon1,
-lat2,
-lon2
-){
-
-  const phi1=
-  toRadians(lat1);
-
-  const phi2=
-  toRadians(lat2);
-
-  const deltaLambda=
-  toRadians(lon2-lon1);
-
-
-  const y=
-  Math.sin(deltaLambda)*
-  Math.cos(phi2);
-
-
-  const x=
-  Math.cos(phi1)*
-  Math.sin(phi2)-
-  Math.sin(phi1)*
-  Math.cos(phi2)*
-  Math.cos(deltaLambda);
-
-
-  const bearing=
-  toDegrees(
-    Math.atan2(y,x)
-  );
-
-
-  return (
-    bearing+360
-  )%360;
-}
-
-
-function bearingToDirection(bearing){
-
-  const directions=[
-    "North",
-    "Northeast",
-    "East",
-    "Southeast",
-    "South",
-    "Southwest",
-    "West",
-    "Northwest"
-  ];
-
-
-  return directions[
-    Math.round(
-      bearing/45
-    )%8
-  ];
-}
-
-
-/*
-  Position Makkah once.
-*/
-
-function positionMakkah(){
-
-  const point=
-  project(
-    KABAH.lat,
-    KABAH.lon
-  );
-
-
-  kabahRing.setAttribute(
-    "cx",
-    point.x
-  );
-
-  kabahRing.setAttribute(
-    "cy",
-    point.y
-  );
-
-
-  kabahDot.setAttribute(
-    "cx",
-    point.x
-  );
-
-  kabahDot.setAttribute(
-    "cy",
-    point.y
-  );
-
-
-  kabahSymbol.setAttribute(
-    "x",
-    point.x+11
-  );
-
-  kabahSymbol.setAttribute(
-    "y",
-    point.y-8
-  );
-
-
-  makkahLabel.setAttribute(
-    "x",
-    point.x+34
-  );
-
-  makkahLabel.setAttribute(
-    "y",
-    point.y-9
-  );
-
-
-  makkahCountry.setAttribute(
-    "x",
-    point.x+34
-  );
-
-  makkahCountry.setAttribute(
-    "y",
-    point.y+6
-  );
-
-}
-
-
-/*
-  Draw the selected city and gold route.
-*/
-
-function drawConnection(
-lat,
-lon,
-city,
-country
-){
-
-  const start=
-  project(lat,lon);
-
-  const end=
-  project(
-    KABAH.lat,
-    KABAH.lon
-  );
-
-
-  originRing.setAttribute(
-    "cx",
-    start.x
-  );
-
-  originRing.setAttribute(
-    "cy",
-    start.y
-  );
-
-
-  originDot.setAttribute(
-    "cx",
-    start.x
-  );
-
-  originDot.setAttribute(
-    "cy",
-    start.y
-  );
-
-
-  /*
-    Put city label on whichever side
-    gives it more room.
-  */
-
-  const labelLeft=
-  start.x>500;
-
-
-  const labelX=
-  labelLeft
-  ? start.x-11
-  : start.x+11;
-
-
-  const anchor=
-  labelLeft
-  ? "end"
-  : "start";
-
-
-  originMapLabel.setAttribute(
-    "x",
-    labelX
-  );
-
-  originMapLabel.setAttribute(
-    "y",
-    start.y-8
-  );
-
-  originMapLabel.setAttribute(
-    "text-anchor",
-    anchor
-  );
-
-  originMapLabel.textContent=
-  city;
-
-
-  originMapCountry.setAttribute(
-    "x",
-    labelX
-  );
-
-  originMapCountry.setAttribute(
-    "y",
-    start.y+7
-  );
-
-  originMapCountry.setAttribute(
-    "text-anchor",
-    anchor
-  );
-
-  originMapCountry.textContent=
-  country;
-
-
-  /*
-    Decorative route arc.
-
-    The endpoints are geographically positioned.
-    The curve itself is visual rather than a flight path.
-  */
-
-  let dx=
-  end.x-start.x;
-
-
-  /*
-    If crossing the Pacific/date line would produce
-    the shorter visual route, wrap the horizontal span.
-  */
-
-  if(Math.abs(dx)>360){
-
-    dx +=
-    dx>0
-    ? -720
-    : 720;
-
-  }
-
-
-  const visualEndX=
-  start.x+dx;
-
-
-  const midX=
-  (start.x+visualEndX)/2;
-
-
-  const horizontalDistance=
-  Math.abs(dx);
-
-
-  const curveHeight=
-  Math.min(
-    78,
-    24+
-    horizontalDistance*.12
-  );
-
-
-  const midY=
-  Math.max(
-    18,
-    Math.min(
-      start.y,
-      end.y
-    )-
-    curveHeight
-  );
-
-
-  const path=
-  `M ${start.x} ${start.y}
-   Q ${midX} ${midY}
-   ${visualEndX} ${end.y}`;
-
-
-  routePath.setAttribute(
-    "d",
-    path
-  );
-
-
-  routeGlow.setAttribute(
-    "d",
-    path
-  );
-
-}
-
-
-async function findCity(city){
-
-  const url=
-  "https://nominatim.openstreetmap.org/search"+
-  "?format=jsonv2"+
-  "&limit=1"+
-  "&addressdetails=1"+
-  "&q="+
-  encodeURIComponent(city);
-
-
-  const response=
-  await fetch(
-    url,
-    {
-      headers:{
-        "Accept":"application/json"
+        setLoading(false);
       }
     }
-  );
 
 
-  if(!response.ok){
-    throw new Error(
-      "City lookup failed."
-    );
-  }
-
-
-  const data=
-  await response.json();
-
-
-  if(!data.length){
-    return null;
-  }
-
-
-  return data[0];
-}
-
-
-function updatePerspective(
-distance,
-city
-){
-
-  const percentEarth=
-  (
-    distance/
-    EARTH_CIRCUMFERENCE
-  )*100;
-
-
-  const equivalentHours=
-  distance/
-  COMPARISON_SPEED;
-
-
-  earthPerspective.textContent=
-  "This distance is about "+
-  percentEarth.toFixed(1)+
-  "% of Earth's circumference.";
-
-
-  flightPerspective.textContent=
-  "At about 900 km/h, covering the same distance would take roughly "+
-  equivalentHours.toFixed(1)+
-  " hours.";
-
-
-  reflectionText.textContent=
-  "Despite being approximately "+
-  Math.round(distance).toLocaleString()+
-  " km away, Muslims in "+
-  city+
-  " turn toward the Kaʿbah in Makkah during Ṣalāh.";
-
-}
-
-
-async function runCalculation(
-cityOverride=null
-){
-
-  const city=
-  cityOverride||
-  cityInput.value.trim();
-
-
-  if(!city){
-
-    status.textContent=
-    "Please enter a city first.";
-
-    return;
-
-  }
-
-
-  result.classList.remove(
-    "show"
-  );
-
-
-  perspective.classList.remove(
-    "open"
-  );
-
-
-  perspectiveButton.setAttribute(
-    "aria-expanded",
-    "false"
-  );
-
-
-  status.textContent=
-  "Finding "+
-  city+
-  "…";
-
-
-  calculateButton.disabled=
-  true;
-
-
-  calculateButton.textContent=
-  "Calculating…";
-
-
-  try{
-
-    const place=
-    await findCity(city);
-
-
-    if(!place){
-
-      status.textContent=
-      "We couldn't find that city. Try including the country as well.";
-
-      return;
-
-    }
-
-
-    const lat=
-    parseFloat(
-      place.lat
+    calculateBtn.addEventListener(
+      "click",
+      () => calculate()
     );
 
 
-    const lon=
-    parseFloat(
-      place.lon
+    cityInput.addEventListener(
+      "keydown",
+      event => {
+
+        if (event.key === "Enter") {
+          calculate();
+        }
+      }
     );
 
 
-    const address=
-    place.address||{};
+    document
+      .querySelectorAll(".example")
+      .forEach(button => {
+
+        button.addEventListener(
+          "click",
+          () => {
+
+            const city =
+              button.dataset.city;
+
+            cityInput.value = city;
+
+            calculate(city);
+          }
+        );
+      });
 
 
-    const displayCity=
-    address.city||
-    address.town||
-    address.village||
-    address.municipality||
-    address.county||
-    city;
+    perspectiveButton.addEventListener(
+      "click",
+      () => {
 
+        const open =
+          perspective.classList.toggle("open");
 
-    const country=
-    address.country||"";
-
-
-    const distance=
-    calculateDistance(
-      lat,
-      lon,
-      KABAH.lat,
-      KABAH.lon
+        perspectiveButton.setAttribute(
+          "aria-expanded",
+          String(open)
+        );
+      }
     );
 
 
-    const bearing=
-    calculateBearing(
-      lat,
-      lon,
-      KABAH.lat,
-      KABAH.lon
+    tryAgainBtn.addEventListener(
+      "click",
+      () => {
+
+        results.style.display = "none";
+        placeholder.style.display = "flex";
+
+        resetPerspective();
+
+        message.textContent = "";
+
+        cityInput.value = "";
+        cityInput.focus();
+      }
     );
 
 
-    distanceNumber.textContent=
-    Math.round(
-      distance
-    ).toLocaleString();
+    loadWorldMap();
 
-
-    directionValue.textContent=
-    bearingToDirection(
-      bearing
-    );
-
-
-    bearingValue.textContent=
-    Math.round(
-      bearing
-    )+
-    "°";
-
-
-    summaryCity.textContent=
-    displayCity;
-
-
-    summaryCountry.textContent=
-    country;
-
-
-    drawConnection(
-      lat,
-      lon,
-      displayCity,
-      country
-    );
-
-
-    updatePerspective(
-      distance,
-      displayCity
-    );
-
-
-    status.textContent="";
-
-
-    result.classList.add(
-      "show"
-    );
-
-  }
-
-  catch(error){
-
-    console.error(error);
-
-
-    status.textContent=
-    "Something went wrong while looking up that city. Please try again.";
-
-  }
-
-  finally{
-
-    calculateButton.disabled=
-    false;
-
-
-    calculateButton.textContent=
-    "Calculate Distance";
-
-  }
-
-}
-
-
-calculateButton.addEventListener(
-"click",
-()=>runCalculation()
-);
-
-
-cityInput.addEventListener(
-"keydown",
-event=>{
-
-  if(event.key==="Enter"){
-    runCalculation();
-  }
-
-});
-
-
-document
-.querySelectorAll(".example")
-.forEach(button=>{
-
-  button.addEventListener(
-  "click",
-  ()=>{
-
-    const city=
-    button.dataset.city;
-
-    cityInput.value=
-    city;
-
-    runCalculation(city);
-
-  });
-
-});
-
-
-perspectiveButton.addEventListener(
-"click",
-()=>{
-
-  const isOpen=
-  perspective.classList.toggle(
-    "open"
-  );
-
-
-  perspectiveButton.setAttribute(
-    "aria-expanded",
-    isOpen
-  );
-
-});
-
-
-againButton.addEventListener(
-"click",
-()=>{
-
-  result.classList.remove(
-    "show"
-  );
-
-
-  perspective.classList.remove(
-    "open"
-  );
-
-
-  perspectiveButton.setAttribute(
-    "aria-expanded",
-    "false"
-  );
-
-
-  cityInput.value="";
-
-  status.textContent="";
-
-  cityInput.focus();
-
-});
-
-
-/*
-  Initialize the accurate world map.
-*/
-
-positionMakkah();
-loadWorldMap();
-
-</script>
+  </script>
 
 </body>
 </html>
