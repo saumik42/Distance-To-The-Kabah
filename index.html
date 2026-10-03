@@ -148,7 +148,7 @@
       line-height: 1.4;
     }
 
-    /* DEFAULT PLACEHOLDER */
+    /* PLACEHOLDER */
 
     .placeholder {
       margin-top: 16px;
@@ -223,6 +223,31 @@
       line-height: 1.5;
     }
 
+    /* NEW PLACEHOLDER-ONLY EXTRA */
+
+    .placeholder-explore {
+      max-width: 650px;
+      margin: 12px auto 0;
+      padding: 17px 16px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+    }
+
+    .placeholder-explore strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--navy);
+      font-size: 14px;
+    }
+
+    .placeholder-explore p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
     .placeholder-reflection {
       max-width: 650px;
       margin: 12px auto 0;
@@ -276,12 +301,35 @@
       width: 100%;
       aspect-ratio: 720 / 310;
       min-height: 235px;
+      overflow: hidden;
+      border-radius: 12px;
+      touch-action: none;
+      cursor: default;
+    }
+
+    .map-wrap.zoomed {
+      cursor: grab;
+    }
+
+    .map-wrap.dragging {
+      cursor: grabbing;
     }
 
     #worldMap {
       display: block;
       width: 100%;
       height: 100%;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /*
+      Everything inside this group zooms and pans together:
+      geographic outlines, route, markers and labels.
+    */
+    #mapViewport {
+      transform-box: fill-box;
+      transform-origin: center;
     }
 
     .map-loading {
@@ -292,6 +340,62 @@
       justify-content: center;
       color: rgba(255,255,255,.82);
       font-size: 13px;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    /* ZOOM CONTROLS */
+
+    .map-controls {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 8;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 9px;
+      background: rgba(7, 26, 43, 0.82);
+      box-shadow: 0 4px 12px rgba(0,0,0,.18);
+      backdrop-filter: blur(4px);
+    }
+
+    .map-control {
+      width: 36px;
+      height: 36px;
+      border: 0;
+      background: transparent;
+      color: white;
+      font-size: 22px;
+      line-height: 1;
+      font-weight: 400;
+      cursor: pointer;
+    }
+
+    .map-control + .map-control {
+      border-top: 1px solid rgba(255,255,255,.16);
+    }
+
+    .map-control:hover {
+      background: rgba(255,255,255,.12);
+    }
+
+    .map-control:disabled {
+      opacity: .35;
+      cursor: default;
+    }
+
+    .zoom-level {
+      position: absolute;
+      right: 10px;
+      bottom: 8px;
+      z-index: 7;
+      padding: 4px 7px;
+      border-radius: 999px;
+      background: rgba(7, 26, 43, .72);
+      color: rgba(255,255,255,.82);
+      font-size: 10px;
       pointer-events: none;
     }
 
@@ -316,18 +420,21 @@
       stroke-dasharray: 7 6;
       opacity: .95;
       filter: drop-shadow(0 0 3px rgba(214,173,76,.35));
+      vector-effect: non-scaling-stroke;
     }
 
     .city-dot {
       fill: var(--blue);
       stroke: white;
       stroke-width: 2;
+      vector-effect: non-scaling-stroke;
     }
 
     .makkah-dot {
       fill: var(--gold);
       stroke: #fff5cf;
       stroke-width: 2;
+      vector-effect: non-scaling-stroke;
     }
 
     .map-label {
@@ -581,6 +688,12 @@
         min-height: 190px;
       }
 
+      .map-control {
+        width: 34px;
+        height: 34px;
+        font-size: 20px;
+      }
+
       .summary-row {
         gap: 6px;
       }
@@ -691,6 +804,16 @@
 
       </div>
 
+      <!-- NEW: placeholder-only height/content addition -->
+
+      <div class="placeholder-explore">
+        <strong>🧭 Explore from anywhere</strong>
+        <p>
+          Try your own city or explore other cities around the world
+          to see how their distance and direction to the Kaʿbah compare.
+        </p>
+      </div>
+
       <div class="placeholder-reflection">
         <strong>A shared direction</strong>
         Wherever Muslims are in the world, they turn toward the Kaʿbah
@@ -711,7 +834,7 @@
 
       <div class="map-card">
 
-        <div class="map-wrap">
+        <div id="mapWrap" class="map-wrap">
 
           <svg
             id="worldMap"
@@ -719,14 +842,39 @@
             role="img"
             aria-label="World map showing the selected city and Makkah"
           >
-            <g id="graticuleLayer"></g>
-            <g id="countriesLayer"></g>
-            <g id="routeLayer"></g>
-            <g id="markerLayer"></g>
+            <g id="mapViewport">
+              <g id="graticuleLayer"></g>
+              <g id="countriesLayer"></g>
+              <g id="routeLayer"></g>
+              <g id="markerLayer"></g>
+            </g>
           </svg>
 
           <div id="mapLoading" class="map-loading">
             Loading map…
+          </div>
+
+          <!-- NEW: zoom controls -->
+          <div class="map-controls" aria-label="Map zoom controls">
+            <button
+              id="zoomInBtn"
+              class="map-control"
+              type="button"
+              aria-label="Zoom in"
+              title="Zoom in"
+            >+</button>
+
+            <button
+              id="zoomOutBtn"
+              class="map-control"
+              type="button"
+              aria-label="Zoom out"
+              title="Zoom out"
+            >−</button>
+          </div>
+
+          <div id="zoomLevel" class="zoom-level">
+            1×
           </div>
 
         </div>
@@ -862,13 +1010,40 @@
     const perspectiveButton = document.getElementById("perspectiveButton");
     const tryAgainBtn = document.getElementById("tryAgainBtn");
 
+    const mapWrap = document.getElementById("mapWrap");
+    const mapViewport = document.getElementById("mapViewport");
+    const zoomInBtn = document.getElementById("zoomInBtn");
+    const zoomOutBtn = document.getElementById("zoomOutBtn");
+    const zoomLevel = document.getElementById("zoomLevel");
+
     const graticuleLayer = document.getElementById("graticuleLayer");
     const countriesLayer = document.getElementById("countriesLayer");
     const routeLayer = document.getElementById("routeLayer");
     const markerLayer = document.getElementById("markerLayer");
     const mapLoading = document.getElementById("mapLoading");
 
+
     let worldDataLoaded = false;
+
+
+    /*
+      MAP VIEW STATE
+      1x = original full-world view.
+    */
+
+    const ZOOM_LEVELS = [1, 1.4, 1.8, 2.2];
+
+    let zoomIndex = 0;
+    let mapScale = ZOOM_LEVELS[zoomIndex];
+
+    let panX = 0;
+    let panY = 0;
+
+    let dragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let dragOriginX = 0;
+    let dragOriginY = 0;
 
 
     function toRadians(degrees) {
@@ -976,6 +1151,222 @@
     }
 
 
+    /*
+      ZOOM / PAN
+    */
+
+    function clampPan() {
+
+      if (mapScale <= 1) {
+        panX = 0;
+        panY = 0;
+        return;
+      }
+
+      /*
+        Maximum translation in SVG viewBox units.
+        This prevents the map from being dragged
+        completely outside the visible frame.
+      */
+
+      const maxX =
+        (MAP_WIDTH * (mapScale - 1)) /
+        (2 * mapScale);
+
+      const maxY =
+        (MAP_HEIGHT * (mapScale - 1)) /
+        (2 * mapScale);
+
+      panX =
+        Math.max(-maxX, Math.min(maxX, panX));
+
+      panY =
+        Math.max(-maxY, Math.min(maxY, panY));
+    }
+
+
+    function updateMapTransform() {
+
+      clampPan();
+
+      /*
+        Transform around the centre of the SVG map.
+        Pan values are applied before scaling so
+        dragging remains natural at each zoom level.
+      */
+
+      mapViewport.setAttribute(
+        "transform",
+        `
+          translate(${MAP_WIDTH / 2} ${MAP_HEIGHT / 2})
+          scale(${mapScale})
+          translate(${-MAP_WIDTH / 2 + panX} ${-MAP_HEIGHT / 2 + panY})
+        `
+      );
+
+      zoomLevel.textContent =
+        mapScale.toFixed(
+          Number.isInteger(mapScale) ? 0 : 1
+        ) + "×";
+
+      zoomOutBtn.disabled =
+        zoomIndex === 0;
+
+      zoomInBtn.disabled =
+        zoomIndex === ZOOM_LEVELS.length - 1;
+
+      mapWrap.classList.toggle(
+        "zoomed",
+        mapScale > 1
+      );
+    }
+
+
+    function resetMapView() {
+
+      zoomIndex = 0;
+      mapScale = ZOOM_LEVELS[0];
+
+      panX = 0;
+      panY = 0;
+
+      updateMapTransform();
+    }
+
+
+    function zoomIn() {
+
+      if (zoomIndex >= ZOOM_LEVELS.length - 1) {
+        return;
+      }
+
+      zoomIndex++;
+      mapScale = ZOOM_LEVELS[zoomIndex];
+
+      updateMapTransform();
+    }
+
+
+    function zoomOut() {
+
+      if (zoomIndex <= 0) {
+        return;
+      }
+
+      zoomIndex--;
+      mapScale = ZOOM_LEVELS[zoomIndex];
+
+      if (mapScale === 1) {
+        panX = 0;
+        panY = 0;
+      }
+
+      updateMapTransform();
+    }
+
+
+    zoomInBtn.addEventListener("click", event => {
+      event.stopPropagation();
+      zoomIn();
+    });
+
+
+    zoomOutBtn.addEventListener("click", event => {
+      event.stopPropagation();
+      zoomOut();
+    });
+
+
+    mapWrap.addEventListener("pointerdown", event => {
+
+      if (mapScale <= 1) {
+        return;
+      }
+
+      /*
+        Do not begin dragging when a zoom
+        control itself is pressed.
+      */
+
+      if (event.target.closest(".map-controls")) {
+        return;
+      }
+
+      dragging = true;
+
+      dragStartX = event.clientX;
+      dragStartY = event.clientY;
+
+      dragOriginX = panX;
+      dragOriginY = panY;
+
+      mapWrap.classList.add("dragging");
+
+      mapWrap.setPointerCapture(event.pointerId);
+    });
+
+
+    mapWrap.addEventListener("pointermove", event => {
+
+      if (!dragging) {
+        return;
+      }
+
+      const rect =
+        mapWrap.getBoundingClientRect();
+
+      /*
+        Convert screen movement into SVG
+        viewBox coordinates and account for zoom.
+      */
+
+      const dx =
+        (event.clientX - dragStartX) *
+        (MAP_WIDTH / rect.width) /
+        mapScale;
+
+      const dy =
+        (event.clientY - dragStartY) *
+        (MAP_HEIGHT / rect.height) /
+        mapScale;
+
+      panX = dragOriginX + dx;
+      panY = dragOriginY + dy;
+
+      updateMapTransform();
+    });
+
+
+    function stopDragging(event) {
+
+      if (!dragging) {
+        return;
+      }
+
+      dragging = false;
+
+      mapWrap.classList.remove("dragging");
+
+      if (
+        event &&
+        mapWrap.hasPointerCapture(event.pointerId)
+      ) {
+        mapWrap.releasePointerCapture(event.pointerId);
+      }
+    }
+
+
+    mapWrap.addEventListener(
+      "pointerup",
+      stopDragging
+    );
+
+    mapWrap.addEventListener(
+      "pointercancel",
+      stopDragging
+    );
+
+
     function drawGraticule() {
 
       graticuleLayer.innerHTML = "";
@@ -1073,7 +1464,9 @@
           await fetch(WORLD_DATA_URL);
 
         if (!response.ok) {
-          throw new Error("Map data could not be loaded.");
+          throw new Error(
+            "Map data could not be loaded."
+          );
         }
 
         const data =
@@ -1091,7 +1484,9 @@
             properties.NAME ||
             "";
 
-          if (name.toLowerCase() === "antarctica") {
+          if (
+            name.toLowerCase() === "antarctica"
+          ) {
             return;
           }
 
@@ -1163,13 +1558,18 @@
       const makkah =
         project(KABAH.lon, KABAH.lat);
 
+
       let cityX = city.x;
       let makkahX = makkah.x;
 
       const difference =
         makkahX - cityX;
 
-      if (Math.abs(difference) > MAP_WIDTH / 2) {
+
+      if (
+        Math.abs(difference) >
+        MAP_WIDTH / 2
+      ) {
 
         if (difference > 0) {
           cityX += MAP_WIDTH;
@@ -1202,9 +1602,13 @@
       routeLayer.appendChild(route);
 
 
-      if (cityX > MAP_WIDTH || makkahX > MAP_WIDTH) {
+      if (
+        cityX > MAP_WIDTH ||
+        makkahX > MAP_WIDTH
+      ) {
 
-        const copy = route.cloneNode();
+        const copy =
+          route.cloneNode();
 
         copy.setAttribute(
           "transform",
@@ -1215,9 +1619,13 @@
       }
 
 
-      if (cityX < 0 || makkahX < 0) {
+      if (
+        cityX < 0 ||
+        makkahX < 0
+      ) {
 
-        const copy = route.cloneNode();
+        const copy =
+          route.cloneNode();
 
         copy.setAttribute(
           "transform",
@@ -1380,10 +1788,13 @@
     }
 
 
-    async function calculate(cityOverride = null) {
+    async function calculate(
+      cityOverride = null
+    ) {
 
       const city =
-        (cityOverride || cityInput.value).trim();
+        (cityOverride || cityInput.value)
+          .trim();
 
       if (!city) {
 
@@ -1399,11 +1810,18 @@
       setLoading(true);
       resetPerspective();
 
+      /*
+        Every new calculation starts with the
+        complete world map visible.
+      */
+      resetMapView();
+
 
       try {
 
         const location =
           await geocodeCity(city);
+
 
         const distance =
           haversineDistance(
@@ -1413,6 +1831,7 @@
             KABAH.lon
           );
 
+
         const bearing =
           initialBearing(
             location.lat,
@@ -1421,8 +1840,10 @@
             KABAH.lon
           );
 
+
         const direction =
           compassDirection(bearing);
+
 
         const roundedDistance =
           Math.round(distance);
@@ -1435,11 +1856,13 @@
           location.city;
 
         summaryCountry.textContent =
-          location.country || "Selected location";
+          location.country ||
+          "Selected location";
 
 
         distanceNumber.textContent =
           roundedDistance.toLocaleString();
+
 
         directionText.textContent =
           direction;
@@ -1449,14 +1872,20 @@
 
 
         const earthPercentage =
-          (distance / EARTH_CIRCUMFERENCE_KM) * 100;
+          (
+            distance /
+            EARTH_CIRCUMFERENCE_KM
+          ) * 100;
+
 
         earthComparison.textContent =
           `This distance is about ${earthPercentage.toFixed(1)}% of the distance around Earth at the equator.`;
 
 
         const conceptualHours =
-          distance / CONCEPTUAL_SPEED_KMH;
+          distance /
+          CONCEPTUAL_SPEED_KMH;
+
 
         flightComparison.textContent =
           `At 900 km/h, covering the same distance continuously would take roughly ${conceptualHours.toFixed(1)} hours.`;
@@ -1474,12 +1903,16 @@
         );
 
 
-        placeholder.style.display = "none";
-        results.style.display = "block";
+        placeholder.style.display =
+          "none";
+
+        results.style.display =
+          "block";
 
 
         if (worldDataLoaded) {
-          mapLoading.style.display = "none";
+          mapLoading.style.display =
+            "none";
         }
 
 
@@ -1524,7 +1957,8 @@
             const city =
               button.dataset.city;
 
-            cityInput.value = city;
+            cityInput.value =
+              city;
 
             calculate(city);
           }
@@ -1537,7 +1971,9 @@
       () => {
 
         const open =
-          perspective.classList.toggle("open");
+          perspective.classList.toggle(
+            "open"
+          );
 
         perspectiveButton.setAttribute(
           "aria-expanded",
@@ -1551,10 +1987,14 @@
       "click",
       () => {
 
-        results.style.display = "none";
-        placeholder.style.display = "block";
+        results.style.display =
+          "none";
+
+        placeholder.style.display =
+          "block";
 
         resetPerspective();
+        resetMapView();
 
         message.textContent = "";
 
@@ -1563,6 +2003,11 @@
       }
     );
 
+
+    /*
+      Establish the original 1x view immediately.
+    */
+    resetMapView();
 
     loadWorldMap();
 
