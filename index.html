@@ -333,7 +333,7 @@
       z-index: 3;
     }
 
-    /* MAP ZOOM CONTROLS */
+    /* MAP CONTROLS */
 
     .map-controls {
       position: absolute;
@@ -358,7 +358,6 @@
       color: white;
       font-size: 22px;
       line-height: 1;
-      font-weight: 400;
       cursor: pointer;
     }
 
@@ -386,6 +385,27 @@
       color: rgba(255,255,255,.82);
       font-size: 10px;
       pointer-events: none;
+    }
+
+    .map-hint {
+      position: absolute;
+      left: 50%;
+      bottom: 8px;
+      z-index: 7;
+      transform: translateX(-50%);
+      max-width: calc(100% - 110px);
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(7, 26, 43, .74);
+      color: rgba(255,255,255,.88);
+      font-size: 10px;
+      white-space: nowrap;
+      pointer-events: none;
+      transition: opacity .25s ease;
+    }
+
+    .map-hint.hidden {
+      opacity: 0;
     }
 
     .graticule {
@@ -753,15 +773,10 @@
 
     </section>
 
-    <!-- DEFAULT PLACEHOLDER -->
-
     <section id="placeholder" class="placeholder">
 
       <div class="placeholder-main">
-
-        <div class="placeholder-icon" aria-hidden="true">
-          🕋
-        </div>
+        <div class="placeholder-icon" aria-hidden="true">🕋</div>
 
         <h2 class="placeholder-title">
           Enter a city to begin
@@ -770,7 +785,6 @@
         <p class="placeholder-text">
           Discover its approximate distance and direction to the Kaʿbah.
         </p>
-
       </div>
 
       <div class="placeholder-preview-grid">
@@ -814,8 +828,6 @@
 
     </section>
 
-    <!-- RESULTS -->
-
     <section id="results">
 
       <div class="map-card">
@@ -828,14 +840,12 @@
             role="img"
             aria-label="World map showing the selected city and Makkah"
           >
-
             <g id="mapViewport">
               <g id="graticuleLayer"></g>
               <g id="countriesLayer"></g>
               <g id="routeLayer"></g>
               <g id="markerLayer"></g>
             </g>
-
           </svg>
 
           <div id="mapLoading" class="map-loading">
@@ -843,16 +853,13 @@
           </div>
 
           <div class="map-controls" aria-label="Map zoom controls">
-
             <button
               id="zoomInBtn"
               class="map-control"
               type="button"
               aria-label="Zoom in"
               title="Zoom in"
-            >
-              +
-            </button>
+            >+</button>
 
             <button
               id="zoomOutBtn"
@@ -860,10 +867,11 @@
               type="button"
               aria-label="Zoom out"
               title="Zoom out"
-            >
-              −
-            </button>
+            >−</button>
+          </div>
 
+          <div id="mapHint" class="map-hint">
+            Pinch to zoom • Drag to explore
           </div>
 
           <div id="zoomLevel" class="zoom-level">
@@ -976,149 +984,98 @@
     const EARTH_CIRCUMFERENCE_KM = 40075;
     const CONCEPTUAL_SPEED_KMH = 900;
 
+    const MIN_ZOOM = 1;
+    const MAX_ZOOM = 6;
+    const BUTTON_ZOOM_FACTOR = 1.25;
+
     const WORLD_DATA_URL =
       "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson";
 
+    const cityInput = document.getElementById("cityInput");
+    const calculateBtn = document.getElementById("calculateBtn");
+    const message = document.getElementById("message");
+    const placeholder = document.getElementById("placeholder");
+    const results = document.getElementById("results");
 
-    const cityInput =
-      document.getElementById("cityInput");
+    const summaryCity = document.getElementById("summaryCity");
+    const summaryCountry = document.getElementById("summaryCountry");
+    const distanceNumber = document.getElementById("distanceNumber");
+    const directionText = document.getElementById("directionText");
+    const bearingText = document.getElementById("bearingText");
 
-    const calculateBtn =
-      document.getElementById("calculateBtn");
+    const earthComparison = document.getElementById("earthComparison");
+    const flightComparison = document.getElementById("flightComparison");
+    const reflection = document.getElementById("reflection");
 
-    const message =
-      document.getElementById("message");
+    const perspective = document.getElementById("perspective");
+    const perspectiveButton = document.getElementById("perspectiveButton");
+    const tryAgainBtn = document.getElementById("tryAgainBtn");
 
-    const placeholder =
-      document.getElementById("placeholder");
+    const mapWrap = document.getElementById("mapWrap");
+    const mapViewport = document.getElementById("mapViewport");
 
-    const results =
-      document.getElementById("results");
+    const zoomInBtn = document.getElementById("zoomInBtn");
+    const zoomOutBtn = document.getElementById("zoomOutBtn");
+    const zoomLevel = document.getElementById("zoomLevel");
+    const mapHint = document.getElementById("mapHint");
 
-    const summaryCity =
-      document.getElementById("summaryCity");
-
-    const summaryCountry =
-      document.getElementById("summaryCountry");
-
-    const distanceNumber =
-      document.getElementById("distanceNumber");
-
-    const directionText =
-      document.getElementById("directionText");
-
-    const bearingText =
-      document.getElementById("bearingText");
-
-    const earthComparison =
-      document.getElementById("earthComparison");
-
-    const flightComparison =
-      document.getElementById("flightComparison");
-
-    const reflection =
-      document.getElementById("reflection");
-
-    const perspective =
-      document.getElementById("perspective");
-
-    const perspectiveButton =
-      document.getElementById("perspectiveButton");
-
-    const tryAgainBtn =
-      document.getElementById("tryAgainBtn");
-
-    const mapWrap =
-      document.getElementById("mapWrap");
-
-    const mapViewport =
-      document.getElementById("mapViewport");
-
-    const zoomInBtn =
-      document.getElementById("zoomInBtn");
-
-    const zoomOutBtn =
-      document.getElementById("zoomOutBtn");
-
-    const zoomLevel =
-      document.getElementById("zoomLevel");
-
-    const graticuleLayer =
-      document.getElementById("graticuleLayer");
-
-    const countriesLayer =
-      document.getElementById("countriesLayer");
-
-    const routeLayer =
-      document.getElementById("routeLayer");
-
-    const markerLayer =
-      document.getElementById("markerLayer");
-
-    const mapLoading =
-      document.getElementById("mapLoading");
-
+    const graticuleLayer = document.getElementById("graticuleLayer");
+    const countriesLayer = document.getElementById("countriesLayer");
+    const routeLayer = document.getElementById("routeLayer");
+    const markerLayer = document.getElementById("markerLayer");
+    const mapLoading = document.getElementById("mapLoading");
 
     let worldDataLoaded = false;
 
+    /* ------------------------------
+       MAP INTERACTION STATE
+    ------------------------------ */
 
-    /*
-      MAP ZOOM LEVELS
-
-      Dragging is enabled at every level
-      above the original 1× view.
-    */
-
-    const ZOOM_LEVELS = [
-      1,
-      1.4,
-      1.8,
-      2.2
-    ];
-
-    let zoomIndex = 0;
-    let mapScale = ZOOM_LEVELS[0];
-
+    let mapScale = 1;
     let panX = 0;
     let panY = 0;
 
-    let dragging = false;
+    const activePointers = new Map();
 
+    let dragPointerId = null;
     let dragStartX = 0;
     let dragStartY = 0;
-
     let dragOriginX = 0;
     let dragOriginY = 0;
 
+    let pinchStartDistance = 0;
+    let pinchStartScale = 1;
+    let pinchStartPanX = 0;
+    let pinchStartPanY = 0;
+    let pinchAnchorX = MAP_WIDTH / 2;
+    let pinchAnchorY = MAP_HEIGHT / 2;
+
+    let mapHasBeenInteractedWith = false;
+
+    function hideMapHint() {
+      if (mapHasBeenInteractedWith) {
+        return;
+      }
+
+      mapHasBeenInteractedWith = true;
+      mapHint.classList.add("hidden");
+    }
 
     function toRadians(degrees) {
       return degrees * Math.PI / 180;
     }
 
-
     function toDegrees(radians) {
       return radians * 180 / Math.PI;
     }
 
+    function haversineDistance(lat1, lon1, lat2, lon2) {
 
-    function haversineDistance(
-      lat1,
-      lon1,
-      lat2,
-      lon2
-    ) {
+      const φ1 = toRadians(lat1);
+      const φ2 = toRadians(lat2);
 
-      const φ1 =
-        toRadians(lat1);
-
-      const φ2 =
-        toRadians(lat2);
-
-      const Δφ =
-        toRadians(lat2 - lat1);
-
-      const Δλ =
-        toRadians(lon2 - lon1);
+      const Δφ = toRadians(lat2 - lat1);
+      const Δλ = toRadians(lon2 - lon1);
 
       const a =
         Math.sin(Δφ / 2) ** 2 +
@@ -1136,25 +1093,13 @@
       return EARTH_RADIUS_KM * c;
     }
 
+    function initialBearing(lat1, lon1, lat2, lon2) {
 
-    function initialBearing(
-      lat1,
-      lon1,
-      lat2,
-      lon2
-    ) {
+      const φ1 = toRadians(lat1);
+      const φ2 = toRadians(lat2);
 
-      const φ1 =
-        toRadians(lat1);
-
-      const φ2 =
-        toRadians(lat2);
-
-      const λ1 =
-        toRadians(lon1);
-
-      const λ2 =
-        toRadians(lon2);
+      const λ1 = toRadians(lon1);
+      const λ2 = toRadians(lon2);
 
       const y =
         Math.sin(λ2 - λ1) *
@@ -1167,14 +1112,10 @@
         Math.cos(φ2) *
         Math.cos(λ2 - λ1);
 
-      const θ =
-        Math.atan2(y, x);
+      const θ = Math.atan2(y, x);
 
-      return (
-        toDegrees(θ) + 360
-      ) % 360;
+      return (toDegrees(θ) + 360) % 360;
     }
-
 
     function compassDirection(bearing) {
 
@@ -1194,25 +1135,15 @@
       ];
     }
 
-
     function project(lon, lat) {
 
       return {
-        x:
-          ((lon + 180) / 360) *
-          MAP_WIDTH,
-
-        y:
-          ((90 - lat) / 180) *
-          MAP_HEIGHT
+        x: ((lon + 180) / 360) * MAP_WIDTH,
+        y: ((90 - lat) / 180) * MAP_HEIGHT
       };
     }
 
-
-    function createSVGElement(
-      name,
-      attributes = {}
-    ) {
+    function createSVGElement(name, attributes = {}) {
 
       const element =
         document.createElementNS(
@@ -1222,38 +1153,23 @@
 
       Object.entries(attributes)
         .forEach(([key, value]) => {
-
-          element.setAttribute(
-            key,
-            value
-          );
+          element.setAttribute(key, value);
         });
 
       return element;
     }
 
-
-    /*
-      MAP PAN LIMITS
-
-      At 1× the map is fixed.
-
-      At every zoom level above 1×, the
-      user can drag across the enlarged
-      map until its actual edge reaches
-      the edge of the viewing window.
-    */
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
 
     function clampPan() {
 
       if (mapScale <= 1) {
-
         panX = 0;
         panY = 0;
-
         return;
       }
-
 
       const maxX =
         (MAP_WIDTH / 2) *
@@ -1263,57 +1179,46 @@
         (MAP_HEIGHT / 2) *
         (1 - 1 / mapScale);
 
-
-      panX =
-        Math.max(
-          -maxX,
-          Math.min(maxX, panX)
-        );
-
-      panY =
-        Math.max(
-          -maxY,
-          Math.min(maxY, panY)
-        );
+      panX = clamp(panX, -maxX, maxX);
+      panY = clamp(panY, -maxY, maxY);
     }
-
 
     function updateMapTransform() {
 
-      clampPan();
+      mapScale =
+        clamp(
+          mapScale,
+          MIN_ZOOM,
+          MAX_ZOOM
+        );
 
+      if (Math.abs(mapScale - 1) < 0.001) {
+        mapScale = 1;
+        panX = 0;
+        panY = 0;
+      }
+
+      clampPan();
 
       mapViewport.setAttribute(
         "transform",
         `
-          translate(
-            ${MAP_WIDTH / 2}
-            ${MAP_HEIGHT / 2}
-          )
+          translate(${MAP_WIDTH / 2} ${MAP_HEIGHT / 2})
           scale(${mapScale})
-          translate(
-            ${-MAP_WIDTH / 2 + panX}
-            ${-MAP_HEIGHT / 2 + panY}
-          )
+          translate(${-MAP_WIDTH / 2 + panX} ${-MAP_HEIGHT / 2 + panY})
         `
       );
 
-
       zoomLevel.textContent =
         mapScale.toFixed(
-          Number.isInteger(mapScale)
-            ? 0
-            : 1
+          mapScale === 1 ? 0 : 1
         ) + "×";
 
-
       zoomOutBtn.disabled =
-        zoomIndex === 0;
+        mapScale <= MIN_ZOOM + 0.001;
 
       zoomInBtn.disabled =
-        zoomIndex ===
-        ZOOM_LEVELS.length - 1;
-
+        mapScale >= MAX_ZOOM - 0.001;
 
       mapWrap.classList.toggle(
         "zoomed",
@@ -1321,101 +1226,268 @@
       );
     }
 
-
     function resetMapView() {
 
-      zoomIndex = 0;
-
-      mapScale =
-        ZOOM_LEVELS[0];
-
+      mapScale = 1;
       panX = 0;
       panY = 0;
+
+      activePointers.clear();
+
+      dragPointerId = null;
+      pinchStartDistance = 0;
+
+      mapWrap.classList.remove("dragging");
 
       updateMapTransform();
     }
 
+    /*
+      Convert a screen position inside the
+      map into the SVG's 720 × 310 coordinate
+      system.
+    */
 
-    function zoomIn() {
+    function screenToMapPoint(clientX, clientY) {
+
+      const rect =
+        mapWrap.getBoundingClientRect();
+
+      return {
+        x:
+          (clientX - rect.left) *
+          (MAP_WIDTH / rect.width),
+
+        y:
+          (clientY - rect.top) *
+          (MAP_HEIGHT / rect.height)
+      };
+    }
+
+    /*
+      Change zoom while preserving the map
+      location underneath a chosen anchor
+      point.
+
+      This is what makes pinch zoom feel
+      like a normal map rather than simply
+      enlarging from the centre.
+    */
+
+    function setZoomAroundPoint(
+      newScale,
+      anchorX,
+      anchorY
+    ) {
+
+      const oldScale = mapScale;
+
+      newScale =
+        clamp(
+          newScale,
+          MIN_ZOOM,
+          MAX_ZOOM
+        );
 
       if (
-        zoomIndex >=
-        ZOOM_LEVELS.length - 1
+        Math.abs(
+          newScale - oldScale
+        ) < 0.0001
       ) {
         return;
       }
 
-      zoomIndex++;
-
-      mapScale =
-        ZOOM_LEVELS[zoomIndex];
-
-      updateMapTransform();
-    }
-
-
-    function zoomOut() {
-
-      if (zoomIndex <= 0) {
+      if (newScale <= 1.001) {
+        mapScale = 1;
+        panX = 0;
+        panY = 0;
+        updateMapTransform();
         return;
       }
 
-      zoomIndex--;
+      /*
+        Current transform:
 
-      mapScale =
-        ZOOM_LEVELS[zoomIndex];
+        screen =
+          centre +
+          scale *
+          (mapPoint - centre + pan)
 
+        Adjust pan so the point beneath the
+        fingers remains beneath the fingers
+        after the scale changes.
+      */
 
-      if (mapScale === 1) {
+      const centerX = MAP_WIDTH / 2;
+      const centerY = MAP_HEIGHT / 2;
 
-        panX = 0;
-        panY = 0;
-      }
+      const worldX =
+        centerX -
+        panX +
+        (anchorX - centerX) / oldScale;
 
+      const worldY =
+        centerY -
+        panY +
+        (anchorY - centerY) / oldScale;
+
+      mapScale = newScale;
+
+      panX =
+        anchorX / mapScale -
+        centerX / mapScale -
+        worldX +
+        centerX;
+
+      panY =
+        anchorY / mapScale -
+        centerY / mapScale -
+        worldY +
+        centerY;
 
       updateMapTransform();
     }
 
+    /* ------------------------------
+       PLUS / MINUS ZOOM
+    ------------------------------ */
+
+    function zoomIn() {
+
+      hideMapHint();
+
+      const newScale =
+        Math.min(
+          MAX_ZOOM,
+          mapScale *
+          BUTTON_ZOOM_FACTOR
+        );
+
+      setZoomAroundPoint(
+        newScale,
+        MAP_WIDTH / 2,
+        MAP_HEIGHT / 2
+      );
+    }
+
+    function zoomOut() {
+
+      hideMapHint();
+
+      const newScale =
+        Math.max(
+          MIN_ZOOM,
+          mapScale /
+          BUTTON_ZOOM_FACTOR
+        );
+
+      setZoomAroundPoint(
+        newScale,
+        MAP_WIDTH / 2,
+        MAP_HEIGHT / 2
+      );
+    }
 
     zoomInBtn.addEventListener(
       "click",
       event => {
-
         event.stopPropagation();
         zoomIn();
       }
     );
 
-
     zoomOutBtn.addEventListener(
       "click",
       event => {
-
         event.stopPropagation();
         zoomOut();
       }
     );
 
+    /* ------------------------------
+       PINCH + DRAG
+    ------------------------------ */
 
-    /*
-      DRAG / PAN
+    function pointerDistance(a, b) {
 
-      Works with:
-      - mouse
-      - touchscreen
-      - stylus
+      return Math.hypot(
+        b.x - a.x,
+        b.y - a.y
+      );
+    }
 
-      It becomes active as soon as the
-      map is zoomed beyond 1×.
-    */
+    function pointerMidpoint(a, b) {
+
+      return {
+        x: (a.x + b.x) / 2,
+        y: (a.y + b.y) / 2
+      };
+    }
+
+    function beginDrag(pointerId, point) {
+
+      if (mapScale <= 1) {
+        dragPointerId = null;
+        return;
+      }
+
+      dragPointerId = pointerId;
+
+      dragStartX = point.x;
+      dragStartY = point.y;
+
+      dragOriginX = panX;
+      dragOriginY = panY;
+
+      mapWrap.classList.add("dragging");
+    }
+
+    function beginPinch() {
+
+      if (activePointers.size < 2) {
+        return;
+      }
+
+      const points =
+        Array.from(
+          activePointers.values()
+        ).slice(0, 2);
+
+      pinchStartDistance =
+        pointerDistance(
+          points[0],
+          points[1]
+        );
+
+      pinchStartScale =
+        mapScale;
+
+      pinchStartPanX =
+        panX;
+
+      pinchStartPanY =
+        panY;
+
+      const midpoint =
+        pointerMidpoint(
+          points[0],
+          points[1]
+        );
+
+      pinchAnchorX =
+        midpoint.x;
+
+      pinchAnchorY =
+        midpoint.y;
+
+      dragPointerId = null;
+
+      mapWrap.classList.remove("dragging");
+    }
 
     mapWrap.addEventListener(
       "pointerdown",
       event => {
-
-        if (mapScale <= 1) {
-          return;
-        }
 
         if (
           event.target.closest(
@@ -1425,137 +1497,280 @@
           return;
         }
 
+        hideMapHint();
 
-        dragging = true;
+        event.preventDefault();
 
-        dragStartX =
-          event.clientX;
+        const point =
+          screenToMapPoint(
+            event.clientX,
+            event.clientY
+          );
 
-        dragStartY =
-          event.clientY;
-
-        dragOriginX =
-          panX;
-
-        dragOriginY =
-          panY;
-
-
-        mapWrap.classList.add(
-          "dragging"
+        activePointers.set(
+          event.pointerId,
+          point
         );
 
+        try {
+          mapWrap.setPointerCapture(
+            event.pointerId
+          );
+        } catch (error) {
+          /* Safe fallback */
+        }
 
-        mapWrap.setPointerCapture(
-          event.pointerId
-        );
+        if (
+          activePointers.size === 1
+        ) {
+
+          beginDrag(
+            event.pointerId,
+            point
+          );
+
+        } else if (
+          activePointers.size === 2
+        ) {
+
+          beginPinch();
+        }
       }
     );
-
 
     mapWrap.addEventListener(
       "pointermove",
       event => {
 
-        if (!dragging) {
+        if (
+          !activePointers.has(
+            event.pointerId
+          )
+        ) {
           return;
         }
 
+        event.preventDefault();
 
-        const rect =
-          mapWrap.getBoundingClientRect();
+        const point =
+          screenToMapPoint(
+            event.clientX,
+            event.clientY
+          );
 
+        activePointers.set(
+          event.pointerId,
+          point
+        );
 
         /*
-          Screen movement is converted directly
-          into SVG map coordinates.
-
-          We intentionally do NOT divide by the
-          current zoom level. This makes dragging
-          remain responsive at 1.4×, 1.8× and
-          2.2× instead of becoming increasingly
-          restricted as the map gets larger.
+          TWO POINTERS:
+          continuous pinch-to-zoom.
         */
 
-        const dx =
-          (
-            event.clientX -
-            dragStartX
-          ) *
-          (
-            MAP_WIDTH /
-            rect.width
+        if (
+          activePointers.size >= 2
+        ) {
+
+          const points =
+            Array.from(
+              activePointers.values()
+            ).slice(0, 2);
+
+          const currentDistance =
+            pointerDistance(
+              points[0],
+              points[1]
+            );
+
+          if (
+            pinchStartDistance <= 0
+          ) {
+            beginPinch();
+            return;
+          }
+
+          const scaleRatio =
+            currentDistance /
+            pinchStartDistance;
+
+          const newScale =
+            clamp(
+              pinchStartScale *
+              scaleRatio,
+              MIN_ZOOM,
+              MAX_ZOOM
+            );
+
+          const midpoint =
+            pointerMidpoint(
+              points[0],
+              points[1]
+            );
+
+          /*
+            Restore the pan that existed when
+            this pinch began, then calculate
+            the scale around the original
+            midpoint.
+
+            We additionally move the anchor by
+            the change in midpoint so the user
+            can naturally pan while pinching.
+          */
+
+          mapScale =
+            pinchStartScale;
+
+          panX =
+            pinchStartPanX;
+
+          panY =
+            pinchStartPanY;
+
+          const midpointShiftX =
+            midpoint.x -
+            pinchAnchorX;
+
+          const midpointShiftY =
+            midpoint.y -
+            pinchAnchorY;
+
+          setZoomAroundPoint(
+            newScale,
+            pinchAnchorX,
+            pinchAnchorY
           );
 
+          if (mapScale > 1) {
+            panX +=
+              midpointShiftX /
+              mapScale;
 
-        const dy =
-          (
-            event.clientY -
-            dragStartY
-          ) *
-          (
-            MAP_HEIGHT /
-            rect.height
-          );
+            panY +=
+              midpointShiftY /
+              mapScale;
 
+            updateMapTransform();
+          }
 
-        panX =
-          dragOriginX + dx;
+          return;
+        }
 
-        panY =
-          dragOriginY + dy;
+        /*
+          ONE POINTER:
+          drag the enlarged map.
+        */
 
+        if (
+          activePointers.size === 1 &&
+          dragPointerId ===
+          event.pointerId &&
+          mapScale > 1
+        ) {
 
-        updateMapTransform();
+          const dx =
+            point.x -
+            dragStartX;
+
+          const dy =
+            point.y -
+            dragStartY;
+
+          /*
+            Keep dragging responsive at high
+            zoom levels. We intentionally do
+            not divide these movements by
+            mapScale.
+          */
+
+          panX =
+            dragOriginX + dx;
+
+          panY =
+            dragOriginY + dy;
+
+          updateMapTransform();
+        }
       }
     );
 
+    function removePointer(event) {
 
-    function stopDragging(event) {
-
-      if (!dragging) {
-        return;
-      }
-
-
-      dragging = false;
-
-
-      mapWrap.classList.remove(
-        "dragging"
+      activePointers.delete(
+        event.pointerId
       );
 
+      try {
+
+        if (
+          mapWrap.hasPointerCapture(
+            event.pointerId
+          )
+        ) {
+
+          mapWrap.releasePointerCapture(
+            event.pointerId
+          );
+        }
+
+      } catch (error) {
+        /* Safe fallback */
+      }
+
+      /*
+        If one finger remains after a pinch,
+        immediately turn that remaining finger
+        into a new drag origin.
+      */
 
       if (
-        event &&
-        mapWrap.hasPointerCapture(
-          event.pointerId
-        )
+        activePointers.size === 1
       ) {
 
-        mapWrap.releasePointerCapture(
-          event.pointerId
+        const remaining =
+          Array.from(
+            activePointers.entries()
+          )[0];
+
+        beginDrag(
+          remaining[0],
+          remaining[1]
         );
+
+      } else {
+
+        dragPointerId = null;
+
+        mapWrap.classList.remove(
+          "dragging"
+        );
+      }
+
+      if (
+        activePointers.size < 2
+      ) {
+        pinchStartDistance = 0;
       }
     }
 
-
     mapWrap.addEventListener(
       "pointerup",
-      stopDragging
+      removePointer
     );
-
 
     mapWrap.addEventListener(
       "pointercancel",
-      stopDragging
+      removePointer
     );
 
+    /* ------------------------------
+       MAP DRAWING
+    ------------------------------ */
 
     function drawGraticule() {
 
       graticuleLayer.innerHTML = "";
-
 
       for (
         let lon = -150;
@@ -1568,7 +1783,6 @@
 
         const bottom =
           project(lon, -90);
-
 
         graticuleLayer.appendChild(
           createSVGElement(
@@ -1584,7 +1798,6 @@
         );
       }
 
-
       for (
         let lat = -60;
         lat <= 60;
@@ -1596,7 +1809,6 @@
 
         const right =
           project(180, lat);
-
 
         graticuleLayer.appendChild(
           createSVGElement(
@@ -1613,13 +1825,14 @@
       }
     }
 
-
     function ringToPath(ring) {
 
-      if (!ring || !ring.length) {
+      if (
+        !ring ||
+        !ring.length
+      ) {
         return "";
       }
-
 
       return ring
         .map(
@@ -1647,7 +1860,6 @@
         " Z";
     }
 
-
     function geometryToPath(
       geometry
     ) {
@@ -1655,7 +1867,6 @@
       if (!geometry) {
         return "";
       }
-
 
       if (
         geometry.type ===
@@ -1666,7 +1877,6 @@
           .map(ringToPath)
           .join(" ");
       }
-
 
       if (
         geometry.type ===
@@ -1683,15 +1893,12 @@
           .join(" ");
       }
 
-
       return "";
     }
-
 
     async function loadWorldMap() {
 
       drawGraticule();
-
 
       try {
 
@@ -1700,7 +1907,6 @@
             WORLD_DATA_URL
           );
 
-
         if (!response.ok) {
 
           throw new Error(
@@ -1708,14 +1914,11 @@
           );
         }
 
-
         const data =
           await response.json();
 
-
         countriesLayer.innerHTML =
           "";
-
 
         data.features.forEach(
           feature => {
@@ -1724,12 +1927,10 @@
               feature.properties ||
               {};
 
-
             const name =
               properties.ADMIN ||
               properties.NAME ||
               "";
-
 
             if (
               name.toLowerCase() ===
@@ -1738,17 +1939,14 @@
               return;
             }
 
-
             const d =
               geometryToPath(
                 feature.geometry
               );
 
-
             if (!d) {
               return;
             }
-
 
             countriesLayer.appendChild(
               createSVGElement(
@@ -1762,12 +1960,10 @@
           }
         );
 
-
         worldDataLoaded = true;
 
         mapLoading.style.display =
           "none";
-
 
       } catch (error) {
 
@@ -1777,7 +1973,6 @@
           "Map could not be loaded.";
       }
     }
-
 
     function addTextLabel(
       x,
@@ -1798,19 +1993,15 @@
           }
         );
 
-
       label.textContent =
         text;
-
 
       markerLayer.appendChild(
         label
       );
 
-
       return label;
     }
-
 
     function drawMapMarkers(
       cityName,
@@ -1822,7 +2013,6 @@
       routeLayer.innerHTML = "";
       markerLayer.innerHTML = "";
 
-
       const city =
         project(lon, lat);
 
@@ -1832,17 +2022,14 @@
           KABAH.lat
         );
 
-
       let cityX =
         city.x;
 
       let makkahX =
         makkah.x;
 
-
       const difference =
         makkahX - cityX;
-
 
       if (
         Math.abs(difference) >
@@ -1850,24 +2037,14 @@
       ) {
 
         if (difference > 0) {
-
-          cityX +=
-            MAP_WIDTH;
-
+          cityX += MAP_WIDTH;
         } else {
-
-          makkahX +=
-            MAP_WIDTH;
+          makkahX += MAP_WIDTH;
         }
       }
 
-
       const midX =
-        (
-          cityX +
-          makkahX
-        ) / 2;
-
+        (cityX + makkahX) / 2;
 
       const midY =
         Math.min(
@@ -1877,11 +2054,9 @@
         Math.max(
           28,
           Math.abs(
-            cityX -
-            makkahX
+            cityX - makkahX
           ) * 0.09
         );
-
 
       const route =
         createSVGElement(
@@ -1895,11 +2070,9 @@
           }
         );
 
-
       routeLayer.appendChild(
         route
       );
-
 
       if (
         cityX > MAP_WIDTH ||
@@ -1909,18 +2082,15 @@
         const copy =
           route.cloneNode();
 
-
         copy.setAttribute(
           "transform",
           `translate(-${MAP_WIDTH},0)`
         );
 
-
         routeLayer.appendChild(
           copy
         );
       }
-
 
       if (
         cityX < 0 ||
@@ -1930,18 +2100,15 @@
         const copy =
           route.cloneNode();
 
-
         copy.setAttribute(
           "transform",
           `translate(${MAP_WIDTH},0)`
         );
 
-
         routeLayer.appendChild(
           copy
         );
       }
-
 
       markerLayer.appendChild(
         createSVGElement(
@@ -1955,19 +2122,16 @@
         )
       );
 
-
       const cityAnchor =
         city.x >
         MAP_WIDTH * 0.76
           ? "end"
           : "start";
 
-
       const cityOffset =
         cityAnchor === "end"
           ? -9
           : 9;
-
 
       addTextLabel(
         city.x + cityOffset,
@@ -1976,7 +2140,6 @@
         "map-label",
         cityAnchor
       );
-
 
       if (countryName) {
 
@@ -1988,7 +2151,6 @@
           cityAnchor
         );
       }
-
 
       markerLayer.appendChild(
         createSVGElement(
@@ -2002,7 +2164,6 @@
         )
       );
 
-
       addTextLabel(
         makkah.x + 9,
         makkah.y - 15,
@@ -2010,14 +2171,12 @@
         "kabah-symbol"
       );
 
-
       addTextLabel(
         makkah.x + 9,
         makkah.y - 2,
         "Makkah",
         "map-label"
       );
-
 
       addTextLabel(
         makkah.x + 9,
@@ -2027,6 +2186,9 @@
       );
     }
 
+    /* ------------------------------
+       CITY LOOKUP
+    ------------------------------ */
 
     async function geocodeCity(city) {
 
@@ -2037,7 +2199,6 @@
         "&addressdetails=1" +
         "&q=" +
         encodeURIComponent(city);
-
 
       const response =
         await fetch(
@@ -2050,7 +2211,6 @@
           }
         );
 
-
       if (!response.ok) {
 
         throw new Error(
@@ -2058,10 +2218,8 @@
         );
       }
 
-
       const data =
         await response.json();
-
 
       if (!data.length) {
 
@@ -2070,13 +2228,11 @@
         );
       }
 
-
       const result =
         data[0];
 
       const address =
         result.address || {};
-
 
       const cityName =
         address.city ||
@@ -2086,10 +2242,8 @@
         address.county ||
         city;
 
-
       const countryName =
         address.country || "";
-
 
       return {
         lat:
@@ -2110,7 +2264,6 @@
       };
     }
 
-
     function setLoading(
       isLoading
     ) {
@@ -2118,13 +2271,11 @@
       calculateBtn.disabled =
         isLoading;
 
-
       calculateBtn.textContent =
         isLoading
           ? "Calculating..."
           : "Calculate Distance";
     }
-
 
     function resetPerspective() {
 
@@ -2132,13 +2283,11 @@
         "open"
       );
 
-
       perspectiveButton.setAttribute(
         "aria-expanded",
         "false"
       );
     }
-
 
     async function calculate(
       cityOverride = null
@@ -2150,7 +2299,6 @@
           cityInput.value
         ).trim();
 
-
       if (!city) {
 
         message.textContent =
@@ -2161,7 +2309,6 @@
         return;
       }
 
-
       message.textContent = "";
 
       setLoading(true);
@@ -2169,12 +2316,23 @@
       resetPerspective();
 
       /*
-        Every new city begins at the
-        complete 1× world view.
+        Every new city begins with
+        the complete world map at 1×.
       */
 
       resetMapView();
 
+      /*
+        Restore the map interaction
+        hint for a new result.
+      */
+
+      mapHasBeenInteractedWith =
+        false;
+
+      mapHint.classList.remove(
+        "hidden"
+      );
 
       try {
 
@@ -2182,7 +2340,6 @@
           await geocodeCity(
             city
           );
-
 
         const distance =
           haversineDistance(
@@ -2192,7 +2349,6 @@
             KABAH.lon
           );
 
-
         const bearing =
           initialBearing(
             location.lat,
@@ -2201,47 +2357,38 @@
             KABAH.lon
           );
 
-
         const direction =
           compassDirection(
             bearing
           );
-
 
         const roundedDistance =
           Math.round(
             distance
           );
 
-
         const roundedBearing =
           Math.round(
             bearing
           );
 
-
         summaryCity.textContent =
           location.city;
-
 
         summaryCountry.textContent =
           location.country ||
           "Selected location";
 
-
         distanceNumber.textContent =
           roundedDistance
             .toLocaleString();
 
-
         directionText.textContent =
           direction;
-
 
         bearingText.textContent =
           roundedBearing +
           "°";
-
 
         const earthPercentage =
           (
@@ -2249,23 +2396,18 @@
             EARTH_CIRCUMFERENCE_KM
           ) * 100;
 
-
         earthComparison.textContent =
           `This distance is about ${earthPercentage.toFixed(1)}% of the distance around Earth at the equator.`;
-
 
         const conceptualHours =
           distance /
           CONCEPTUAL_SPEED_KMH;
 
-
         flightComparison.textContent =
           `At 900 km/h, covering the same distance continuously would take roughly ${conceptualHours.toFixed(1)} hours.`;
 
-
         reflection.textContent =
           `From ${location.city}, the Kaʿbah is approximately ${roundedDistance.toLocaleString()} km away. Wherever Muslims are in the world, they turn toward the Kaʿbah in Makkah during Ṣalāh.`;
-
 
         drawMapMarkers(
           location.city,
@@ -2274,21 +2416,16 @@
           location.lon
         );
 
-
         placeholder.style.display =
           "none";
-
 
         results.style.display =
           "block";
 
-
         if (worldDataLoaded) {
-
           mapLoading.style.display =
             "none";
         }
-
 
       } catch (error) {
 
@@ -2296,19 +2433,20 @@
           error.message ||
           "Something went wrong. Please try another city.";
 
-
       } finally {
 
         setLoading(false);
       }
     }
 
+    /* ------------------------------
+       GENERAL CONTROLS
+    ------------------------------ */
 
     calculateBtn.addEventListener(
       "click",
       () => calculate()
     );
-
 
     cityInput.addEventListener(
       "keydown",
@@ -2318,12 +2456,10 @@
           event.key ===
           "Enter"
         ) {
-
           calculate();
         }
       }
     );
-
 
     document
       .querySelectorAll(
@@ -2339,10 +2475,8 @@
               const city =
                 button.dataset.city;
 
-
               cityInput.value =
                 city;
-
 
               calculate(
                 city
@@ -2351,7 +2485,6 @@
           );
         }
       );
-
 
     perspectiveButton.addEventListener(
       "click",
@@ -2364,14 +2497,12 @@
               "open"
             );
 
-
         perspectiveButton.setAttribute(
           "aria-expanded",
           String(open)
         );
       }
     );
-
 
     tryAgainBtn.addEventListener(
       "click",
@@ -2380,35 +2511,25 @@
         results.style.display =
           "none";
 
-
         placeholder.style.display =
           "block";
-
 
         resetPerspective();
         resetMapView();
 
-
         message.textContent =
           "";
 
-
         cityInput.value =
           "";
-
 
         cityInput.focus();
       }
     );
 
-
-    /*
-      Start with the original
-      centred world view.
-    */
+    /* INITIALIZE */
 
     resetMapView();
-
     loadWorldMap();
 
   </script>
